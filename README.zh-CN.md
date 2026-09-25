@@ -16,7 +16,7 @@
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-6e7681?style=flat-square" alt="Platform: Windows | macOS | Linux">
 </p>
 
-<p align="center"><b>简体中文</b> · <a href="README.en.md">English</a></p>
+<p align="center"><a href="README.md">English</a> · <b>简体中文</b></p>
 
 <p align="center">
   <a href="#features">功能</a> ·
