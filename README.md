@@ -28,6 +28,10 @@
   <a href="#architecture">Architecture</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/logo-wall.png" width="100%" alt="The apps, providers, and model families OwO AI Gateway supports">
+</p>
+
 <br>
 
 <table>

@@ -28,6 +28,10 @@
   <a href="#architecture">架构</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/logo-wall.png" width="100%" alt="OwO AI Gateway 支持的应用、提供商和模型系列">
+</p>
+
 <br>
 
 <table>
