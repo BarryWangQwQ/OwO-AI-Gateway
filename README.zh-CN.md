@@ -444,11 +444,11 @@ npm run tauri dev
 
 桌面应用直接读取配置和用量数据，也直接编辑提供商、模型和 `config.toml`。启停网关、接入应用，以及 MCP 和技能的变更，则通过调用 `owo` 命令行完成。命令行已经编译进桌面应用的可执行文件里：第一个参数为 `--owo-cli` 时，它的行为和 `owo` 完全一样（设置 `OWO_BIN` 可以改用单独编译的 `owo`）。
 
-打包单文件版本（内置命令行的桌面应用，无需安装）：
+打包当前平台的发布版本（内置命令行的桌面应用）：Windows 是单个 `.exe`，macOS 是装着 `.app` 的 `.dmg`，Linux 是自带依赖的 AppImage。[Release 工作流](.github/workflows/release.yml) 会在 GitHub Actions 上同时编译这三个平台。
 
 ```bash
 cd apps/desktop
-npm run release    # 输出 target/release/OwO-AI-Gateway_<版本>_<系统>-<架构>[.exe]
+npm run release    # 输出 target/release/OwO-AI-Gateway_<版本>_<系统>-<架构>.{exe,dmg,AppImage}
 ```
 
 <br>

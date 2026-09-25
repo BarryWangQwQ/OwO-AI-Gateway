@@ -1,6 +1,6 @@
-# Single-file desktop builds (the app with the owo CLI inside) for Windows, macOS on Apple
-# silicon, and Linux. Run it by hand from the Actions tab to get the files as build artifacts,
-# or push a `v*` tag to also publish them on a GitHub release.
+# Desktop releases with the owo CLI inside: a single .exe for Windows, a .dmg with the .app
+# for macOS on Apple silicon, and a self-contained AppImage for Linux. Run it by hand from the
+# Actions tab to get the files as build artifacts, or push a `v*` tag to also publish a release.
 name: Release
 
 on:
@@ -31,7 +31,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev pkg-config build-essential
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev pkg-config build-essential patchelf libfuse2 xdg-utils
 
       - uses: dtolnay/rust-toolchain@stable
 

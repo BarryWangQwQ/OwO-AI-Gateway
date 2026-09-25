@@ -41,7 +41,13 @@ pub fn set_self_args(args: Vec<OsString>) {
 /// A command that runs this same `owo` again.
 pub(crate) fn self_command() -> anyhow::Result<std::process::Command> {
     use anyhow::Context as _;
-    let mut cmd = std::process::Command::new(std::env::current_exe().context("cannot locate the owo executable")?);
+    // Inside an AppImage the executable lives in a mount that disappears with the app, so a
+    // long-running child (the background gateway) is started from the AppImage file itself.
+    let exe = match std::env::var_os("APPIMAGE").filter(|p| cfg!(target_os = "linux") && !p.is_empty()) {
+        Some(appimage) => std::path::PathBuf::from(appimage),
+        None => std::env::current_exe().context("cannot locate the owo executable")?,
+    };
+    let mut cmd = std::process::Command::new(exe);
     cmd.args(SELF_ARGS.get().map(Vec::as_slice).unwrap_or_default());
     Ok(cmd)
 }
