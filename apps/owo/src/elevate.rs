@@ -1,5 +1,6 @@
-//! Runs a command with administrator rights: a UAC prompt on Windows, `sudo` (prompting
-//! in the terminal) on macOS and Linux, or directly when already running as root.
+//! Runs a command with administrator rights: a UAC prompt on Windows; on macOS and Linux
+//! `sudo` in a terminal, or the system's password dialog when there is no terminal (the
+//! desktop app running `owo`); directly when already running as root.
 
 use std::path::Path;
 
@@ -81,19 +82,26 @@ mod imp {
         std::process::Command::new("id").arg("-u").output().is_ok_and(|o| String::from_utf8_lossy(&o.stdout).trim() == "0")
     }
 
-    pub fn run(program: &str, args: &[String], _log: &Path) -> Result<()> {
-        let mut cmd = if is_root() {
-            std::process::Command::new(program)
-        } else {
-            let mut c = std::process::Command::new("sudo");
-            c.arg(program);
-            c
+    /// `value` as one POSIX shell word.
+    #[cfg(target_os = "macos")]
+    fn sh_quote(value: &str) -> String {
+        format!("'{}'", value.replace('\'', r"'\''"))
+    }
+
+    fn run_plain(program: &str, args: &[String], via: Option<&str>) -> Result<()> {
+        let mut cmd = match via {
+            Some(helper) => {
+                let mut c = std::process::Command::new(helper);
+                c.arg(program);
+                c
+            }
+            None => std::process::Command::new(program),
         };
         cmd.args(args);
         let status = match cmd.status() {
             Ok(s) => s,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                bail!("`sudo` is not available; run this as root, then re-run:\n  {}", display(program, args))
+                bail!("`{}` is not available; run this as root, then re-run:\n  {}", via.unwrap_or(program), display(program, args))
             }
             Err(e) => return Err(e).with_context(|| format!("cannot run {program}")),
         };
@@ -101,5 +109,40 @@ mod imp {
             bail!("`{}` did not succeed (exit status {status})", display(program, args));
         }
         Ok(())
+    }
+
+    /// macOS without a terminal: the standard administrator password dialog.
+    #[cfg(target_os = "macos")]
+    fn run_dialog(program: &str, args: &[String]) -> Result<()> {
+        let shell: Vec<String> = std::iter::once(program).chain(args.iter().map(String::as_str)).map(sh_quote).collect();
+        let script = format!(
+            "do shell script \"{}\" with prompt \"OwO AI Gateway needs administrator rights to trust its local certificate.\" with administrator privileges",
+            shell.join(" ").replace('\\', r"\\").replace('"', "\\\"")
+        );
+        let out = std::process::Command::new("osascript").args(["-e", &script]).output().context("cannot run osascript")?;
+        if out.status.success() {
+            return Ok(());
+        }
+        let err = String::from_utf8_lossy(&out.stderr);
+        if err.contains("-128") {
+            bail!("`{}` was not run: the administrator prompt was cancelled", display(program, args));
+        }
+        bail!("`{}` did not succeed:\n{}", display(program, args), err.trim())
+    }
+
+    /// Linux without a terminal: polkit's password dialog through `pkexec`.
+    #[cfg(not(target_os = "macos"))]
+    fn run_dialog(program: &str, args: &[String]) -> Result<()> {
+        run_plain(program, args, Some("pkexec"))
+    }
+
+    pub fn run(program: &str, args: &[String], _log: &Path) -> Result<()> {
+        if is_root() {
+            return run_plain(program, args, None);
+        }
+        if std::io::IsTerminal::is_terminal(&std::io::stdin()) {
+            return run_plain(program, args, Some("sudo"));
+        }
+        run_dialog(program, args)
     }
 }
