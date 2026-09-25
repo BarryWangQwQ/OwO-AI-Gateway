@@ -438,7 +438,14 @@ npm install
 npm run tauri dev
 ```
 
-The desktop app reads the config and usage data directly and edits providers, models, and `config.toml` itself. Starting and stopping the gateway, connecting apps, and MCP and skill changes go through the `owo` CLI, which it looks for in `OWO_BIN`, next to the app, on `PATH`, and in this repository's `target/`.
+The desktop app reads the config and usage data directly and edits providers, models, and `config.toml` itself. Starting and stopping the gateway, connecting apps, and MCP and skill changes go through the `owo` CLI, which is built into the desktop executable: run with `--owo-cli` as its first argument, the app behaves exactly like `owo` (set `OWO_BIN` to use a separately built `owo` instead).
+
+To build the portable single-file release (the desktop app with the CLI inside, no installer):
+
+```bash
+cd apps/desktop
+npm run release    # → target/release/OwO-AI-Gateway_<version>_x64.exe
+```
 
 <br>
 

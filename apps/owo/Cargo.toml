@@ -6,6 +6,10 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
+[lib]
+name = "owo"
+path = "src/lib.rs"
+
 [[bin]]
 name = "owo"
 path = "src/main.rs"

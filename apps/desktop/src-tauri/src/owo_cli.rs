@@ -1,10 +1,11 @@
 //! Runs the `owo` command line for actions with side effects (starting the gateway,
 //! connecting apps), so the desktop app and the CLI share one tested implementation.
+//! The CLI is built into this executable and reached through [`crate::CLI_FLAG`].
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 
 pub struct Output {
     pub ok: bool,
@@ -12,28 +13,22 @@ pub struct Output {
     pub text: String,
 }
 
-/// `OWO_BIN`, else `owo` next to this app, on PATH, or in this repository's build output.
+/// The executable that runs `owo` commands: `OWO_BIN` when set (a separately built `owo`),
+/// otherwise this app itself.
 pub fn binary() -> Result<PathBuf> {
     if let Some(path) = std::env::var_os("OWO_BIN").filter(|v| !v.is_empty()) {
         return Ok(PathBuf::from(path));
     }
-    let exe = if cfg!(windows) { "owo.exe" } else { "owo" };
-    let beside_app = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join(exe)));
-    let on_path = std::env::var_os("PATH").into_iter().flat_map(|p| std::env::split_paths(&p).collect::<Vec<_>>()).map(|d| d.join(exe));
-    if let Some(found) = beside_app.into_iter().chain(on_path).find(|p| p.is_file()) {
-        return Ok(found);
-    }
-    let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../target");
-    let built = ["release", "debug"].iter().map(|profile| target.join(profile).join(exe)).filter(|p| p.is_file());
-    if let Some(newest) = built.max_by_key(|p| p.metadata().and_then(|m| m.modified()).ok()) {
-        return Ok(newest);
-    }
-    bail!("cannot find the `owo` executable; put it next to this app or on PATH (or set OWO_BIN)")
+    std::env::current_exe().context("cannot locate this executable")
 }
 
 pub fn run(args: &[&str]) -> Result<Output> {
+    let external = std::env::var_os("OWO_BIN").is_some_and(|v| !v.is_empty());
     let bin = binary()?;
     let mut cmd = Command::new(&bin);
+    if !external {
+        cmd.arg(crate::CLI_FLAG);
+    }
     cmd.args(args);
     #[cfg(windows)]
     {

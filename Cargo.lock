@@ -4160,6 +4160,7 @@ name = "owo-desktop"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "owo",
  "owo-config",
  "owo-credentials",
  "owo-registry",
@@ -4173,6 +4174,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "toml_edit 0.22.27",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

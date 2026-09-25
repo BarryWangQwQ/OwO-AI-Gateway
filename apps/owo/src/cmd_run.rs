@@ -223,7 +223,7 @@ pub fn start_detached(global: &GlobalArgs, listen: Option<String>) -> Result<()>
     let log_path = paths.logs.join("owo.log");
     let log = std::fs::OpenOptions::new().create(true).append(true).open(&log_path).with_context(|| format!("cannot open {}", log_path.display()))?;
 
-    let mut cmd = std::process::Command::new(std::env::current_exe().context("cannot locate the owo executable")?);
+    let mut cmd = crate::self_command()?;
     if global.portable {
         cmd.arg("--portable");
     }
