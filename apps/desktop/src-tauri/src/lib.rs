@@ -41,6 +41,12 @@ fn attach_parent_console() {
 fn attach_parent_console() {}
 
 pub fn run() {
+    // Failing here only means the pages show the missing-config state; never block the window.
+    if let Some(paths) = owo_config::OwoPaths::home() {
+        if let Err(e) = config_edit::ensure_exists(&paths) {
+            eprintln!("could not create {}: {e:#}", paths.config.display());
+        }
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![

@@ -3,7 +3,7 @@ import i18next from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 
 import { useApp } from "@/components/app-context";
-import { MoreHorizontal, Pencil, Plus, Trash2 } from "@/components/icons";
+import { Boxes, MoreHorizontal, Pencil, Plus, Trash2 } from "@/components/icons";
 import { ChoiceTile, ErrorAlert, IconButton, PageHeader, TABLE_EDGE_INSET } from "@/components/page";
 import { TableRowsSkeleton } from "@/components/skeletons";
 import { Dot } from "@/components/status-badge";
@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Empty, EmptyContent, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
@@ -104,7 +105,7 @@ function priceProblem(d: Draft): string | null {
 
 export function ModelsPage() {
   const { t } = useTranslation();
-  const { saved } = useApp();
+  const { saved, navigate } = useApp();
   // The edit dialog works on its own `draft` snapshot, so a poll landing mid-edit leaves the form alone.
   const models = useQuery(api.models, [], { refreshInterval: REFRESH.config });
   const providers = useQuery(api.providers, [], { refreshInterval: REFRESH.config });
@@ -175,6 +176,7 @@ export function ModelsPage() {
   // Skeleton rows until both the models and the provider names they show are here; a reload after a save keeps the rows.
   // Providers only label rows, so an empty list doesn't wait for them.
   const loading = models.loading || (providers.loading && (models.data?.length ?? 0) > 0);
+  const empty = !loading && !models.error && models.data?.length === 0;
 
   return (
     <div className="space-y-6">
@@ -185,73 +187,96 @@ export function ModelsPage() {
         }
       />
       {models.error && <ErrorAlert error={models.error} />}
-      <Card className="py-0">
-        <CardContent className="px-0">
-          <Table className={TABLE_EDGE_INSET}>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("models.columns.model")}</TableHead>
-                <TableHead>{t("models.columns.provider")}</TableHead>
-                <TableHead>{t("models.columns.upstreamId")}</TableHead>
-                <TableHead>{t("models.columns.price")}</TableHead>
-                <TableHead>{t("models.columns.status")}</TableHead>
-                <TableHead className="w-12" />
-              </TableRow>
-            </TableHeader>
-            {/* Rows are 48px (the `size-8` ⋯ button + `p-2`), so the skeleton lines are `h-8`. */}
-            {loading && (
-              <TableRowsSkeleton
-                rows={4}
-                line="h-8"
-                columns={[{ w: "w-40" }, { w: "w-24" }, { w: "w-32", bar: "h-3" }, { w: "w-24" }, { w: "w-20" }, { w: "size-8", bar: "size-8 rounded-2xl" }]}
-              />
+      {empty ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Boxes />
+            </EmptyMedia>
+            <EmptyTitle>{t("models.empty")}</EmptyTitle>
+          </EmptyHeader>
+          <EmptyContent>
+            {/* Models need a provider first; until there is one the button goes where one is added. */}
+            {providers.data?.length === 0 ? (
+              <Button onClick={() => navigate("providers")}>
+                <Plus /> {t("providers.add")}
+              </Button>
+            ) : (
+              <Button onClick={() => open()} disabled={!providers.data?.length}>
+                <Plus /> {t("models.add")}
+              </Button>
             )}
-            <TableBody>
-              {!loading &&
-                models.data?.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <VendorIcon id={m.id} provider={m.provider} className="size-4 shrink-0" />
-                        <div className="min-w-0">
-                          <div className="font-medium">{m.displayName || m.id}</div>
-                          {m.displayName !== m.id && <div className="font-mono text-xs text-muted-foreground">{m.id}</div>}
+          </EmptyContent>
+        </Empty>
+      ) : (
+        <Card className="py-0">
+          <CardContent className="px-0">
+            <Table className={TABLE_EDGE_INSET}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("models.columns.model")}</TableHead>
+                  <TableHead>{t("models.columns.provider")}</TableHead>
+                  <TableHead>{t("models.columns.upstreamId")}</TableHead>
+                  <TableHead>{t("models.columns.price")}</TableHead>
+                  <TableHead>{t("models.columns.status")}</TableHead>
+                  <TableHead className="w-12" />
+                </TableRow>
+              </TableHeader>
+              {/* Rows are 48px (the `size-8` ⋯ button + `p-2`), so the skeleton lines are `h-8`. */}
+              {loading && (
+                <TableRowsSkeleton
+                  rows={4}
+                  line="h-8"
+                  columns={[{ w: "w-40" }, { w: "w-24" }, { w: "w-32", bar: "h-3" }, { w: "w-24" }, { w: "w-20" }, { w: "size-8", bar: "size-8 rounded-2xl" }]}
+                />
+              )}
+              <TableBody>
+                {!loading &&
+                  models.data?.map((m) => (
+                    <TableRow key={m.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <VendorIcon id={m.id} provider={m.provider} className="size-4 shrink-0" />
+                          <div className="min-w-0">
+                            <div className="font-medium">{m.displayName || m.id}</div>
+                            {m.displayName !== m.id && <div className="font-mono text-xs text-muted-foreground">{m.id}</div>}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell title={m.provider}>{providerLabel(m.provider, providers.data)}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">{m.upstreamModel}</TableCell>
-                    <TableCell className="tabular-nums">
-                      {m.price ? priceLabel(m.price) : <span className="text-muted-foreground">—</span>}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`flex items-center gap-2 text-sm ${m.available ? "" : "text-muted-foreground"}`}>
-                        <Dot on={m.available} /> {m.available ? t("models.available") : t("models.disabled")}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => open(m)}>
-                            <Pencil /> {t("common.edit")}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem variant="destructive" onClick={() => setDeleting(m)}>
-                            <Trash2 /> {t("common.remove")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      </TableCell>
+                      <TableCell title={m.provider}>{providerLabel(m.provider, providers.data)}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">{m.upstreamModel}</TableCell>
+                      <TableCell className="tabular-nums">
+                        {m.price ? priceLabel(m.price) : <span className="text-muted-foreground">—</span>}
+                      </TableCell>
+                      <TableCell>
+                        <span className={`flex items-center gap-2 text-sm ${m.available ? "" : "text-muted-foreground"}`}>
+                          <Dot on={m.available} /> {m.available ? t("models.available") : t("models.disabled")}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => open(m)}>
+                              <Pencil /> {t("common.edit")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem variant="destructive" onClick={() => setDeleting(m)}>
+                              <Trash2 /> {t("common.remove")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       <Dialog open={!!draft} onOpenChange={(open) => !open && setDraft(undefined)}>
         <DialogContent className="sm:max-w-2xl">

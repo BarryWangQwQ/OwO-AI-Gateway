@@ -184,6 +184,7 @@
   "models": {
     "title": "Models",
     "add": "Add model",
+    "empty": "No models yet",
     "columns": {
       "model": "Model",
       "provider": "Provider",
@@ -227,7 +228,7 @@
   "providers": {
     "title": "Providers",
     "add": "Add provider",
-    "noneYet": "No providers yet.",
+    "empty": "No providers yet",
     "adapters": {
       "openaiChat": "OpenAI-compatible",
       "anthropic": "Anthropic Messages"

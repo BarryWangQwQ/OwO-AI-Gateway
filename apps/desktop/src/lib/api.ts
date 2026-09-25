@@ -138,6 +138,19 @@ export type ProviderEdit = {
   enabled: boolean;
 };
 
+/**
+ * What the config reads fail with while there is no config.toml (the app creates an empty one at launch, so only when
+ * it was deleted since). Missing is the same as empty; a config that is there but doesn't load still fails.
+ */
+const NO_CONFIG = /there is no config\.toml yet|config file not found at/;
+
+function orNoConfig<T>(fallback: T) {
+  return (e: unknown): T => {
+    if (NO_CONFIG.test(String(e))) return fallback;
+    throw e;
+  };
+}
+
 export const api = {
   status: () => invoke<Status>("status"),
   usage: (days: number, by: GroupBy) => invoke<UsageReport>("usage", { days, by }),
@@ -146,8 +159,8 @@ export const api = {
   call: (id: number) => invoke<StoredCall | null>("call", { id }),
   /** Deletes every recorded call; resolves to the number deleted. */
   clearHistory: () => invoke<number>("clear_history"),
-  models: () => invoke<ModelInfo[]>("models"),
-  providers: () => invoke<ProviderInfo[]>("providers"),
+  models: () => invoke<ModelInfo[]>("models").catch(orNoConfig<ModelInfo[]>([])),
+  providers: () => invoke<ProviderInfo[]>("providers").catch(orNoConfig<ProviderInfo[]>([])),
   presets: () => invoke<Preset[]>("presets"),
   apps: () => invoke<AppInfo[]>("apps"),
   gatewayStart: () => invoke<ActionResult>("gateway_start"),
@@ -162,7 +175,7 @@ export const api = {
   saveConfigText: (text: string) => invoke<void>("save_config_text", { text }),
   /** Replaces config.toml with the starter config; resolves to the backup's path (null when there was no file). */
   resetConfig: () => invoke<string | null>("reset_config"),
-  general: () => invoke<General>("general"),
+  general: () => invoke<General>("general").catch(orNoConfig<General>({ name: "OwO", listen: "127.0.0.1:8787", clients: {} })),
   saveGeneral: (name: string, listen: string) => invoke<void>("save_general", { name, listen }),
   saveClient: (app: string, model: string | null, name: string | null) => invoke<void>("save_client", { app, model, name }),
   saveModel: (model: ModelEdit) => invoke<void>("save_model", { model }),

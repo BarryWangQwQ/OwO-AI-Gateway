@@ -34,6 +34,23 @@ pub fn save_text(paths: &OwoPaths, text: &str) -> Result<()> {
     write_atomic(paths, text)
 }
 
+/// The config a first launch writes: no providers, so every page starts empty.
+const EMPTY_CONFIG: &str = r#"# OwO AI Gateway — one local endpoint for every AI coding app
+#
+# Providers, models and apps added in the app (or with `owo add`) are written here.
+# `owo providers presets` lists the built-in presets.
+"#;
+
+/// Writes an empty config when there is no config.toml yet, so a first launch opens on empty
+/// pages instead of "config not found" errors.
+pub fn ensure_exists(paths: &OwoPaths) -> Result<()> {
+    if paths.config.exists() {
+        return Ok(());
+    }
+    save_text(paths, EMPTY_CONFIG)?;
+    paths.ensure_dirs().with_context(|| format!("cannot create the data directories under {}", paths.root.display()))
+}
+
 /// Replaces config.toml with the starter config, after copying the current file to
 /// `<backups>/config/<unix-ts>-config.toml`. Returns that backup's path (`None` when there
 /// was no config.toml to back up). Keys in the OS keyring are untouched.
@@ -254,6 +271,21 @@ model = "fast"
         let text = std::fs::read_to_string(&paths.config).unwrap();
         let (config, registry) = check(&text, "test").unwrap();
         (text, config, registry)
+    }
+
+    #[test]
+    fn a_missing_config_is_created_and_an_existing_one_left_alone() {
+        let dir = tempfile::tempdir().unwrap();
+        let paths = OwoPaths::from_home_root(dir.path().join("fresh"));
+        ensure_exists(&paths).unwrap();
+        let (text, config, _) = load(&paths);
+        assert_eq!(text, EMPTY_CONFIG);
+        assert!(config.providers.is_empty());
+        assert!(paths.state.is_dir());
+
+        let (_dir, paths) = setup();
+        ensure_exists(&paths).unwrap();
+        assert_eq!(std::fs::read_to_string(&paths.config).unwrap(), CONFIG);
     }
 
     #[test]

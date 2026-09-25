@@ -53,6 +53,7 @@ export function DashboardPage() {
   const names = useNames();
   const [metric, setMetric] = useState<"tokens" | "cost">("tokens");
   const year = useQuery(() => api.usage(371, "day"), [], live);
+  const providers = useQuery(api.providers, [], { refreshInterval: REFRESH.config });
   const queries = [today, daily, week, byApp, recent, year];
   /**
    * Every card has its own same-size placeholder for the first load (KPI value bars, the empty heatmap, chart / ring /
@@ -88,7 +89,8 @@ export function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [daily.data, i18n.language]);
 
-  if (status && !status.configExists) {
+  const fresh = providers.data?.length === 0 && year.data?.total.calls === 0;
+  if ((status && !status.configExists) || fresh) {
     return (
       <div className="space-y-4">
         <PageHeader title={t("dashboard.title")} />

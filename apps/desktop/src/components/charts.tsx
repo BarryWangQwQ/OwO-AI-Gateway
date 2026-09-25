@@ -44,13 +44,18 @@ function RingLabel({ viewBox, value, caption, size }: { viewBox: LabelProps["vie
   const base = BIG_STEPS.findIndex(([cls]) => cls === `text-${size}`);
   const [bigClass, bigPx] = BIG_STEPS[Math.min(BIG_STEPS.length - 1, base + (value.length > 8 ? 2 : value.length > 6 ? 1 : 0))];
   const gap = caption ? 4 : 0;
+  // Explicit alphabetic baselines instead of `dominant-baseline`: WebKit (macOS) doesn't pass it on to
+  // `<tspan>`s the way Chromium does. Digits and caps are ~0.7em tall, so a baseline 0.35em below a line's
+  // middle centres it.
+  const valueMid = caption ? cy - (CAPTION_PX + gap) / 2 : cy;
+  const captionMid = cy + (bigPx + gap) / 2;
   return (
-    <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
-      <tspan x={cx} y={caption ? cy - (CAPTION_PX + gap) / 2 : cy} className={cn("fill-foreground font-semibold tabular-nums", bigClass)}>
+    <text x={cx} y={cy} textAnchor="middle">
+      <tspan x={cx} y={valueMid + bigPx * 0.35} className={cn("fill-foreground font-semibold tabular-nums", bigClass)}>
         {value}
       </tspan>
       {caption && (
-        <tspan x={cx} y={cy + (bigPx + gap) / 2} className="fill-muted-foreground text-xs">
+        <tspan x={cx} y={captionMid + CAPTION_PX * 0.35} className="fill-muted-foreground text-xs">
           {caption}
         </tspan>
       )}

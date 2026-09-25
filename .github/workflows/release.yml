@@ -19,7 +19,8 @@ jobs:
         include:
           - os: windows-latest
             name: windows-x64
-          - os: macos-14
+          # macOS 26 with Xcode 26: actool compiles the Icon Composer icon (see scripts/release.mjs).
+          - os: macos-26
             name: macos-arm64
           - os: ubuntu-22.04
             name: linux-x64

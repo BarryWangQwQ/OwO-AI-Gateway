@@ -3,7 +3,7 @@ import { cn } from "cn";
 import { Trans, useTranslation } from "react-i18next";
 
 import { useApp } from "@/components/app-context";
-import { Globe, KeyRound, MoreHorizontal, Pencil, Plus, Trash2 } from "@/components/icons";
+import { Globe, KeyRound, MoreHorizontal, Pencil, Plus, Server, Trash2 } from "@/components/icons";
 import { ModelIdList, parseModelIds } from "@/components/model-id-list";
 import { ChoiceTile, ErrorAlert, IconButton, PageHeader } from "@/components/page";
 import { ProviderCardSkeleton, repeat } from "@/components/skeletons";
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Empty, EmptyContent, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -359,7 +360,21 @@ export function ProvidersPage() {
     <div className="space-y-6">
       <PageHeader title={t("providers.title")} actions={<IconButton variant="default" label={t("providers.add")} icon={<Plus />} onClick={() => open()} />} />
       {providers.error && <ErrorAlert error={providers.error} />}
-      {!loading && providers.data?.length === 0 && <p className="text-sm text-muted-foreground">{t("providers.noneYet")}</p>}
+      {!loading && !providers.error && providers.data?.length === 0 && (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Server />
+            </EmptyMedia>
+            <EmptyTitle>{t("providers.empty")}</EmptyTitle>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={() => open()}>
+              <Plus /> {t("providers.add")}
+            </Button>
+          </EmptyContent>
+        </Empty>
+      )}
       {/*
        * Skeleton cards on the first load only (presets included: they decide whether a card shows its host line);
        * a reload after a save keeps the real cards in place.

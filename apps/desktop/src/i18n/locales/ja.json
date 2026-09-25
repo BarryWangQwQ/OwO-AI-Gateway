@@ -181,6 +181,7 @@
   "models": {
     "title": "モデル",
     "add": "モデルを追加",
+    "empty": "モデルはまだありません",
     "columns": {
       "model": "モデル",
       "provider": "プロバイダー",
@@ -224,7 +225,7 @@
   "providers": {
     "title": "プロバイダー",
     "add": "プロバイダーを追加",
-    "noneYet": "プロバイダーはまだありません。",
+    "empty": "プロバイダーはまだありません",
     "adapters": {
       "openaiChat": "OpenAI 互換",
       "anthropic": "Anthropic Messages"
