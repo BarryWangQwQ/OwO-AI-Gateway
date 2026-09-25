@@ -272,7 +272,12 @@ OwO 在各应用里使用的是应用自带的模型机制：
 
 ## 快速上手
 
-目前需要从源码构建（Rust 1.85 及以上）：
+桌面应用可以在 [Releases](https://github.com/BarryWangQwQ/OwO-AI-Gateway/releases) 下载：Windows 是单个 `.exe`，Apple 芯片的 macOS 是 `.dmg`，Linux 是 AppImage。`owo` 命令行已经内置在应用里（第一个参数用 `--owo-cli`）。
+
+- **macOS**：应用暂未经过 Apple 公证。如果 macOS 拒绝打开，到 **系统设置 → 隐私与安全性** 点 **仍要打开**，或者运行一次 `xattr -cr "/Applications/OwO AI Gateway.app"`。
+- **Linux**：先 `chmod +x OwO-AI-Gateway_*.AppImage`，再运行。
+
+从源码构建 `owo` 命令行（Rust 1.85 及以上）：
 
 ```bash
 cargo install --path apps/owo --locked     # 安装 owo；也可以用 cargo build --release -p owo，产物在 target/release/

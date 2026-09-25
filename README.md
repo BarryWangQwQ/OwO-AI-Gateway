@@ -272,7 +272,12 @@ If you need to hand out API access to a team, bill per user, or fail over automa
 
 ## Quick start
 
-For now, build from source (Rust 1.85 or newer):
+Download the desktop app from [Releases](https://github.com/BarryWangQwQ/OwO-AI-Gateway/releases): a single `.exe` for Windows, a `.dmg` for macOS on Apple silicon, an AppImage for Linux. The `owo` CLI is built in (`--owo-cli` as the first argument).
+
+- **macOS**: the app is not notarized yet. If macOS refuses to open it, open **System Settings → Privacy & Security** and click **Open Anyway**, or run `xattr -cr "/Applications/OwO AI Gateway.app"` once.
+- **Linux**: `chmod +x OwO-AI-Gateway_*.AppImage`, then run it.
+
+To build the `owo` CLI from source (Rust 1.85 or newer):
 
 ```bash
 cargo install --path apps/owo --locked     # installs owo; or cargo build --release -p owo (binary in target/release/)
