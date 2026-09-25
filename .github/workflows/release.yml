@@ -1,0 +1,74 @@
+# Single-file desktop builds (the app with the owo CLI inside) for Windows, macOS on Apple
+# silicon, and Linux. Run it by hand from the Actions tab to get the files as build artifacts,
+# or push a `v*` tag to also publish them on a GitHub release.
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows-x64
+          - os: macos-14
+            name: macos-arm64
+          - os: ubuntu-22.04
+            name: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux system libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev pkg-config build-essential
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: apps/desktop
+        run: npm ci
+
+      - name: Build
+        working-directory: apps/desktop
+        run: npm run release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OwO-AI-Gateway-${{ matrix.name }}
+          path: target/release/OwO-AI-Gateway_*
+          if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "OwO AI Gateway $GITHUB_REF_NAME" --generate-notes

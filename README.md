@@ -448,7 +448,7 @@ To build the portable single-file release (the desktop app with the CLI inside, 
 
 ```bash
 cd apps/desktop
-npm run release    # → target/release/OwO-AI-Gateway_<version>_x64.exe
+npm run release    # → target/release/OwO-AI-Gateway_<version>_<os>-<arch>[.exe]
 ```
 
 <br>

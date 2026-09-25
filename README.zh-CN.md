@@ -448,7 +448,7 @@ npm run tauri dev
 
 ```bash
 cd apps/desktop
-npm run release    # 输出 target/release/OwO-AI-Gateway_<版本>_x64.exe
+npm run release    # 输出 target/release/OwO-AI-Gateway_<版本>_<系统>-<架构>[.exe]
 ```
 
 <br>
