@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { Area, AreaChart, Bar, BarChart, Label, Pie, PieChart, type LabelProps } from "recharts";
 import { useTranslation } from "react-i18next";
 import { cn } from "cn";
@@ -38,11 +38,24 @@ const CAPTION_PX = 12; // text-xs
  * down only for genuinely long ones: one step past 6 characters (`999.99M`), two past 8 (`12345.67B`).
  */
 function RingLabel({ viewBox, value, caption, size }: { viewBox: LabelProps["viewBox"]; value: string; caption: string; size: "3xl" | "2xl" | "xl" }) {
-  if (!viewBox || !("cx" in viewBox)) return null;
-  const cx = viewBox.cx ?? 0;
-  const cy = viewBox.cy ?? 0;
+  const polar = viewBox && "cx" in viewBox ? viewBox : undefined;
   const base = BIG_STEPS.findIndex(([cls]) => cls === `text-${size}`);
-  const [bigClass, bigPx] = BIG_STEPS[Math.min(BIG_STEPS.length - 1, base + (value.length > 8 ? 2 : value.length > 6 ? 1 : 0))];
+  const [, stepPx] = BIG_STEPS[Math.min(BIG_STEPS.length - 1, base + (value.length > 8 ? 2 : value.length > 6 ? 1 : 0))];
+  // Fonts differ in width across platforms, so the value is measured and shrunk until it sits within 70% of the hole.
+  const valueRef = useRef<SVGTSpanElement>(null);
+  const [fitPx, setFitPx] = useState<number | null>(null);
+  const maxWidth = (polar?.innerRadius ?? 0) * 2 * 0.7;
+  useLayoutEffect(() => {
+    const el = valueRef.current;
+    if (!el || maxWidth <= 0) return;
+    el.style.fontSize = `${stepPx}px`;
+    const width = el.getComputedTextLength();
+    setFitPx(width > maxWidth ? Math.floor((stepPx * maxWidth) / width) : null);
+  }, [value, stepPx, maxWidth]);
+  if (!polar) return null;
+  const cx = polar.cx ?? 0;
+  const cy = polar.cy ?? 0;
+  const bigPx = fitPx ?? stepPx;
   const gap = caption ? 4 : 0;
   // Explicit alphabetic baselines instead of `dominant-baseline`: WebKit (macOS) doesn't pass it on to
   // `<tspan>`s the way Chromium does. Digits and caps are ~0.7em tall, so a baseline 0.35em below a line's
@@ -51,7 +64,7 @@ function RingLabel({ viewBox, value, caption, size }: { viewBox: LabelProps["vie
   const captionMid = cy + (bigPx + gap) / 2;
   return (
     <text x={cx} y={cy} textAnchor="middle">
-      <tspan x={cx} y={valueMid + bigPx * 0.35} className={cn("fill-foreground font-semibold tabular-nums", bigClass)}>
+      <tspan ref={valueRef} x={cx} y={valueMid + bigPx * 0.35} style={{ fontSize: bigPx }} className="fill-foreground font-semibold tabular-nums">
         {value}
       </tspan>
       {caption && (

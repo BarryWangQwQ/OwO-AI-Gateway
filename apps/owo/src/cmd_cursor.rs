@@ -49,10 +49,18 @@ fn set_connected(paths: &OwoPaths, on: bool) -> Result<()> {
     Ok(())
 }
 
-/// Runs the OS trust-store commands with administrator rights.
+/// Runs the OS trust-store commands, with administrator rights where they need them.
 fn run_trust_commands(commands: &[TrustCommand], log: &Path) -> Result<()> {
     for c in commands {
-        crate::elevate::run(&c.program, &c.args, log)?;
+        if c.elevated {
+            crate::elevate::run(&c.program, &c.args, log)?;
+            continue;
+        }
+        let out = std::process::Command::new(&c.program).args(&c.args).output()?;
+        if !out.status.success() {
+            let err = String::from_utf8_lossy(&out.stderr);
+            bail!("`{}` did not succeed:\n{}", crate::elevate::display(&c.program, &c.args), err.trim());
+        }
     }
     Ok(())
 }

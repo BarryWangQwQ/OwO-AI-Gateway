@@ -32,17 +32,24 @@ pub struct CaManager {
     dir: PathBuf,
 }
 
-/// A command that changes the operating system's trust store; it needs administrator
-/// rights (the caller elevates it).
+/// A command that changes the operating system's trust store. `elevated` ones need
+/// administrator rights (the caller elevates them); the others run as the user, and the OS
+/// asks for approval itself.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TrustCommand {
     pub program: String,
     pub args: Vec<String>,
+    pub elevated: bool,
 }
 
 impl TrustCommand {
     fn new(program: &str, args: &[&str]) -> Self {
-        Self { program: program.into(), args: args.iter().map(|a| a.to_string()).collect() }
+        Self { program: program.into(), args: args.iter().map(|a| a.to_string()).collect(), elevated: true }
+    }
+
+    #[cfg(target_os = "macos")]
+    fn as_user(program: &str, args: &[&str]) -> Self {
+        Self { elevated: false, ..Self::new(program, args) }
     }
 }
 
@@ -114,11 +121,11 @@ impl CaManager {
                 format!("'{}'", a.replace('\'', "'\\''"))
             }
         };
-        let sudo = if cfg!(windows) { "" } else { "sudo " };
+        let sudo = |c: &TrustCommand| if cfg!(windows) || !c.elevated { "" } else { "sudo " };
         let lines: Vec<String> = self
             .trust_commands()
             .iter()
-            .map(|c| format!("{sudo}{} {}", c.program, c.args.iter().map(|a| quote(a)).collect::<Vec<_>>().join(" ")))
+            .map(|c| format!("{}{} {}", sudo(c), c.program, c.args.iter().map(|a| quote(a)).collect::<Vec<_>>().join(" ")))
             .collect();
         (!lines.is_empty()).then(|| lines.join(" && "))
     }
@@ -227,14 +234,30 @@ fn sha1_fingerprint(cert: &str) -> Result<String> {
 }
 
 #[cfg(target_os = "macos")]
+const MACOS_LOGIN_KEYCHAIN: &str = "login.keychain-db";
+
+/// Whether the keychain holds the certificate with this SHA-1 fingerprint.
+#[cfg(target_os = "macos")]
+fn macos_keychain_has(keychain: &str, fingerprint: &str) -> Result<bool> {
+    let output = Command::new("security").args(["find-certificate", "-a", "-Z", keychain]).output()?;
+    Ok(output.status.success() && String::from_utf8_lossy(&output.stdout).contains(fingerprint))
+}
+
+/// A certificate in a keychain is only trusted once trust settings (user or admin domain)
+/// name it: a failed `add-trusted-cert` can leave the certificate imported but untrusted.
+#[cfg(target_os = "macos")]
 fn is_installed(cert: &str) -> Result<bool> {
     let fingerprint = sha1_fingerprint(cert)?;
-    for keychain in ["login.keychain-db", "/Library/Keychains/System.keychain"] {
-        let output = Command::new("security")
-            .args(["find-certificate", "-a", "-Z", keychain])
-            .output()?;
-        if output.status.success() && String::from_utf8_lossy(&output.stdout).contains(&fingerprint)
-        {
+    let mut present = false;
+    for keychain in [MACOS_LOGIN_KEYCHAIN, MACOS_SYSTEM_KEYCHAIN] {
+        present |= macos_keychain_has(keychain, &fingerprint)?;
+    }
+    if !present {
+        return Ok(false);
+    }
+    for domain in [&[][..], &["-d"][..]] {
+        let output = Command::new("security").arg("dump-trust-settings").args(domain).output()?;
+        if String::from_utf8_lossy(&output.stdout).contains(CA_COMMON_NAME) {
             return Ok(true);
         }
     }
@@ -268,17 +291,37 @@ fn platform_untrust(fingerprint: Option<&str>) -> Vec<TrustCommand> {
     vec![TrustCommand::new("certutil", &["-delstore", "Root", fingerprint.unwrap_or(CA_COMMON_NAME)])]
 }
 
+/// Trusted for the user in the login keychain. Run as the user, macOS shows its own
+/// password prompt; admin-domain trust through a root shell fails without that prompt
+/// ("no user interaction was possible") after importing the certificate.
 #[cfg(target_os = "macos")]
 fn platform_trust(cert: &str) -> Vec<TrustCommand> {
-    vec![TrustCommand::new("security", &["add-trusted-cert", "-d", "-r", "trustRoot", "-p", "ssl", "-k", MACOS_SYSTEM_KEYCHAIN, cert])]
+    vec![TrustCommand::as_user("security", &["add-trusted-cert", "-r", "trustRoot", "-p", "ssl", "-k", MACOS_LOGIN_KEYCHAIN, cert])]
 }
 
+/// Removes the certificate (and its user trust settings) from the login keychain, and from
+/// the System keychain where earlier versions put it.
 #[cfg(target_os = "macos")]
 fn platform_untrust(fingerprint: Option<&str>) -> Vec<TrustCommand> {
-    vec![match fingerprint {
-        Some(f) => TrustCommand::new("security", &["delete-certificate", "-Z", f, MACOS_SYSTEM_KEYCHAIN]),
-        None => TrustCommand::new("security", &["delete-certificate", "-c", CA_COMMON_NAME, MACOS_SYSTEM_KEYCHAIN]),
-    }]
+    let delete = |keychain: &str, elevated: bool| {
+        let args: Vec<&str> = match fingerprint {
+            Some(f) => vec!["delete-certificate", "-t", "-Z", f, keychain],
+            None => vec!["delete-certificate", "-t", "-c", CA_COMMON_NAME, keychain],
+        };
+        if elevated { TrustCommand::new("security", &args) } else { TrustCommand::as_user("security", &args) }
+    };
+    let has = |keychain: &str| match fingerprint {
+        Some(f) => macos_keychain_has(keychain, f).unwrap_or(true),
+        None => true,
+    };
+    let mut commands = Vec::new();
+    if has(MACOS_LOGIN_KEYCHAIN) {
+        commands.push(delete(MACOS_LOGIN_KEYCHAIN, false));
+    }
+    if has(MACOS_SYSTEM_KEYCHAIN) {
+        commands.push(delete(MACOS_SYSTEM_KEYCHAIN, true));
+    }
+    commands
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
