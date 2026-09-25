@@ -1,0 +1,18 @@
+[package]
+name = "owo-usage"
+description = "Call history and token usage, stored in SQLite"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite"] }
+tokio.workspace = true
+tracing.workspace = true
+owo-core.workspace = true
+owo-routing.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

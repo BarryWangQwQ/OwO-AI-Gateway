@@ -1,0 +1,7 @@
+/target
+/.cargo/config.toml
+/data
+*.local.toml
+node_modules/
+/apps/desktop/dist/
+/OWO_PROJECT_SPEC.md

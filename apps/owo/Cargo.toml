@@ -1,0 +1,50 @@
+[package]
+name = "owo"
+description = "OwO AI Gateway — one local endpoint for every AI coding app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "owo"
+path = "src/main.rs"
+
+[features]
+default = ["semble"]
+# Cursor's local semantic code search tools; see owo-client-cursor.
+semble = ["owo-client-cursor/semble"]
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+owo-client-apps.workspace = true
+owo-client-claude-code.workspace = true
+owo-client-codex.workspace = true
+owo-mcp.workspace = true
+owo-skills.workspace = true
+owo-client-cursor = { path = "../../crates/client-cursor", default-features = false }
+tokio-util = "0.7"
+toml_edit.workspace = true
+owo-config.workspace = true
+owo-core.workspace = true
+owo-credentials.workspace = true
+owo-gateway.workspace = true
+owo-provider-anthropic.workspace = true
+owo-provider-openai-compat.workspace = true
+owo-registry.workspace = true
+owo-routing.workspace = true
+owo-usage.workspace = true
+rpassword = "7"
+indoc = "2"
+dirs.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+base64 = "0.22"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Console"] }

@@ -1,0 +1,12 @@
+# Cursor rewrites these files (same content, new mtime) every time it opens the workspace,
+# which made `tauri dev` kill and rebuild the desktop window. Only apps/desktop/src-tauri is watched;
+# restart `npm run tauri dev` after changing anything below.
+/crates/
+/registry/
+/docs/
+/compatibility/
+/apps/owo/
+/.cargo/
+/Cargo.toml
+/*.md
+/.gitignore

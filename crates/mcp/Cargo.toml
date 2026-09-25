@@ -1,0 +1,19 @@
+[package]
+name = "owo-mcp"
+description = "One shared list of MCP servers, written into each app's own MCP config through reversible managed edits"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+dirs.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+owo-client-apps.workspace = true
+owo-config.workspace = true
+owo-credentials.workspace = true
+
+[dev-dependencies]
+toml.workspace = true

@@ -1,0 +1,20 @@
+[package]
+name = "owo-provider-openai-compat"
+description = "Adapter for every OpenAI Chat Completions-compatible provider"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+futures.workspace = true
+reqwest.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+owo-core.workspace = true
+owo-protocol-openai-chat.workspace = true
+owo-provider-http.workspace = true
+owo-registry.workspace = true
+owo-routing.workspace = true
+owo-sse.workspace = true

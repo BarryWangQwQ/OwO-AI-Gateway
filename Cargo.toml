@@ -1,0 +1,88 @@
+[workspace]
+resolver = "3"
+members = [
+    "apps/owo",
+    "apps/desktop/src-tauri",
+    "crates/core",
+    "crates/sse",
+    "crates/config",
+    "crates/credentials",
+    "crates/registry",
+    "crates/protocol-openai-chat",
+    "crates/routing",
+    "crates/usage",
+    "crates/provider-openai-compat",
+    "crates/protocol-openai-responses",
+    "crates/gateway",
+    "crates/client-codex",
+    "crates/provider-http",
+    "crates/protocol-anthropic",
+    "crates/provider-anthropic",
+    "crates/cursor-semble",
+    "crates/client-cursor",
+    "crates/client-claude-code",
+    "crates/client-apps",
+    "crates/mcp",
+    "crates/skills",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/BarryWangQwQ/OwO-AI-Gate"
+rust-version = "1.85"
+
+[workspace.dependencies]
+owo-core = { path = "crates/core" }
+owo-sse = { path = "crates/sse" }
+owo-config = { path = "crates/config" }
+owo-credentials = { path = "crates/credentials" }
+owo-registry = { path = "crates/registry" }
+owo-routing = { path = "crates/routing" }
+owo-usage = { path = "crates/usage" }
+owo-gateway = { path = "crates/gateway" }
+owo-protocol-openai-chat = { path = "crates/protocol-openai-chat" }
+owo-protocol-openai-responses = { path = "crates/protocol-openai-responses" }
+owo-provider-openai-compat = { path = "crates/provider-openai-compat" }
+owo-client-codex = { path = "crates/client-codex" }
+owo-client-claude-code = { path = "crates/client-claude-code" }
+owo-client-apps = { path = "crates/client-apps" }
+owo-mcp = { path = "crates/mcp" }
+owo-skills = { path = "crates/skills" }
+owo-provider-http = { path = "crates/provider-http" }
+owo-protocol-anthropic = { path = "crates/protocol-anthropic" }
+owo-provider-anthropic = { path = "crates/provider-anthropic" }
+
+anyhow = "1"
+async-trait = "0.1"
+axum = "0.8"
+bytes = "1"
+clap = { version = "4", features = ["derive"] }
+dirs = "6"
+futures = "0.3"
+http = "1"
+# Windows Credential Manager, macOS Keychain, Secret Service on Linux/BSD. `vendored` builds
+# libdbus from source, so Linux builds need only a C compiler (no libdbus-1-dev/pkg-config).
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust", "vendored"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls", "http2"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+sha2 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal", "time", "sync", "fs", "io-util"] }
+toml = "0.8"
+toml_edit = "0.22"
+tower = { version = "0.5", features = ["limit", "util"] }
+tower-http = { version = "0.6", features = ["limit", "timeout", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true
+# Unwinding (the default) keeps a panic inside one request from taking the gateway down,
+# and lets shutdown cleanup (Cursor's proxy settings) run.

@@ -1,0 +1,19 @@
+[package]
+name = "owo-client-codex"
+description = "Codex CLI/App integration: model catalog, profile, reversible config changes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+dirs.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+toml_edit.workspace = true
+owo-registry.workspace = true
+
+[dev-dependencies]
+owo-config.workspace = true

@@ -1,0 +1,31 @@
+[package]
+name = "owo-desktop"
+description = "OwO AI Gateway desktop app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "owo_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tokio.workspace = true
+toml_edit.workspace = true
+owo-config.workspace = true
+owo-credentials.workspace = true
+owo-registry.workspace = true
+owo-skills.workspace = true
+owo-usage.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

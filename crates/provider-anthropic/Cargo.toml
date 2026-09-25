@@ -1,0 +1,20 @@
+[package]
+name = "owo-provider-anthropic"
+description = "Adapter for the Anthropic Messages API (Anthropic and compatible endpoints)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+reqwest.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+owo-core.workspace = true
+owo-protocol-anthropic.workspace = true
+owo-provider-http.workspace = true
+owo-registry.workspace = true
+owo-routing.workspace = true
+owo-sse.workspace = true
+url.workspace = true

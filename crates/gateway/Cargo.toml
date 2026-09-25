@@ -1,0 +1,34 @@
+[package]
+name = "owo-gateway"
+description = "Local HTTP gateway: client-facing protocol endpoints and the control API"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+axum.workspace = true
+bytes.workspace = true
+futures.workspace = true
+http.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+owo-client-claude-code.workspace = true
+owo-client-codex.workspace = true
+owo-core.workspace = true
+owo-credentials.workspace = true
+owo-protocol-anthropic.workspace = true
+owo-protocol-openai-chat.workspace = true
+owo-protocol-openai-responses.workspace = true
+owo-registry.workspace = true
+owo-routing.workspace = true
+
+[dev-dependencies]
+async-trait.workspace = true
+reqwest.workspace = true
+owo-config.workspace = true
+owo-provider-openai-compat.workspace = true
+owo-sse.workspace = true

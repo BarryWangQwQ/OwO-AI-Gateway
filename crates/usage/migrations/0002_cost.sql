@@ -1,0 +1,1 @@
+ALTER TABLE calls ADD COLUMN cost_usd REAL;

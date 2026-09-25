@@ -1,0 +1,14 @@
+[package]
+name = "owo-protocol-openai-responses"
+description = "OpenAI Responses API <-> OwO AI Gateway canonical core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+bytes.workspace = true
+serde_json.workspace = true
+owo-core.workspace = true
+owo-protocol-openai-chat.workspace = true
+owo-sse.workspace = true

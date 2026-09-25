@@ -1,0 +1,26 @@
+[package]
+name = "owo-skills"
+description = "Agent Skills: one store in ~/.agents/skills, per-app enablement, installs from folders, zips, and GitHub"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+dirs.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml = "0.9"
+sha2.workspace = true
+toml_edit.workspace = true
+owo-client-apps.workspace = true
+zip = { version = "4", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[target.'cfg(windows)'.dependencies]
+junction = "1"
+
+[dev-dependencies]
+tempfile = "3"
+tokio.workspace = true

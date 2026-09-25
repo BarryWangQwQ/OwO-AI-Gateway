@@ -1,0 +1,19 @@
+[package]
+name = "owo-routing"
+description = "Provider adapter contract and the request router"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+futures.workspace = true
+tracing.workspace = true
+owo-config.workspace = true
+owo-core.workspace = true
+owo-credentials.workspace = true
+owo-registry.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

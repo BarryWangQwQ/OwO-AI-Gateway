@@ -1,0 +1,15 @@
+[package]
+name = "owo-protocol-anthropic"
+description = "Anthropic Messages API <-> OwO AI Gateway canonical core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+bytes.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+owo-core.workspace = true
+owo-sse.workspace = true
+uuid.workspace = true

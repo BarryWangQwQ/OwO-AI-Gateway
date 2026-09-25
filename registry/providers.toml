@@ -1,0 +1,213 @@
+# Built-in provider presets.
+#
+# A preset is data, not code: adding an OpenAI-compatible provider is a new
+# table here, never a new routing branch. `opencodex_id` is the preset's id in
+# the reference registry; the parity tooling uses it.
+#
+# Fields:
+#   display_name, adapter, base_url    required
+#   auth         bearer | header | query | none     (default: bearer)
+#   auth_param   header/query name for auth = header | query
+#   api_key      suggested key reference when the user sets none
+#   private_network = true   base URL is a local runtime (loopback allowed)
+#   models       static upstream model ids known for the preset
+
+# OpenAI is best driven through the Responses API; this build implements
+# Chat Completions only, and `https://api.openai.com/v1` serves both, so the
+# preset uses `openai-chat` until `openai-responses` lands (presets whose
+# adapter is not implemented are hidden by the desktop wizard and disabled by
+# the registry).
+[presets.openai]
+display_name = "OpenAI"
+adapter = "openai-chat"
+base_url = "https://api.openai.com/v1"
+api_key = "env:OPENAI_API_KEY"
+opencodex_id = "openai-apikey"
+
+[presets.anthropic]
+display_name = "Anthropic"
+adapter = "anthropic"
+base_url = "https://api.anthropic.com"
+auth = "header"
+auth_param = "x-api-key"
+api_key = "env:ANTHROPIC_API_KEY"
+opencodex_id = "anthropic-apikey"
+models = ["claude-sonnet-5", "claude-opus-5-5", "claude-haiku-4-5"]
+
+# Current Claude models accept images and at least 64k output tokens. The 200k
+# context keeps clients' auto-compaction inside standard pricing; raise it per
+# provider (`model_defaults.context_window`) to use the 1M window.
+[presets.anthropic.model_defaults]
+context_window = 200000
+max_output_tokens = 64000
+reasoning_efforts = ["low", "medium", "high", "xhigh", "max"]
+default_reasoning_effort = "medium"
+capabilities = { vision = true, tools = true, parallel_tools = true }
+
+[presets.google]
+display_name = "Gemini"
+adapter = "google"
+base_url = "https://generativelanguage.googleapis.com"
+auth = "header"
+auth_param = "x-goog-api-key"
+api_key = "env:GEMINI_API_KEY"
+opencodex_id = "google"
+
+[presets.openrouter]
+display_name = "OpenRouter"
+adapter = "openai-chat"
+base_url = "https://openrouter.ai/api/v1"
+api_key = "env:OPENROUTER_API_KEY"
+opencodex_id = "openrouter"
+
+[presets.deepseek]
+display_name = "DeepSeek"
+adapter = "openai-chat"
+base_url = "https://api.deepseek.com"
+api_key = "env:DEEPSEEK_API_KEY"
+models = ["deepseek-chat", "deepseek-reasoner"]
+opencodex_id = "deepseek"
+
+[presets.xai]
+display_name = "xAI"
+adapter = "openai-chat"
+base_url = "https://api.x.ai/v1"
+api_key = "env:XAI_API_KEY"
+opencodex_id = "xai"
+
+[presets.groq]
+display_name = "Groq"
+adapter = "openai-chat"
+base_url = "https://api.groq.com/openai/v1"
+api_key = "env:GROQ_API_KEY"
+opencodex_id = "groq"
+
+[presets.cerebras]
+display_name = "Cerebras"
+adapter = "openai-chat"
+base_url = "https://api.cerebras.ai/v1"
+api_key = "env:CEREBRAS_API_KEY"
+opencodex_id = "cerebras"
+
+[presets.mistral]
+display_name = "Mistral"
+adapter = "openai-chat"
+base_url = "https://api.mistral.ai/v1"
+api_key = "env:MISTRAL_API_KEY"
+opencodex_id = "mistral"
+
+[presets.together]
+display_name = "Together"
+adapter = "openai-chat"
+base_url = "https://api.together.xyz/v1"
+api_key = "env:TOGETHER_API_KEY"
+opencodex_id = "together"
+
+[presets.fireworks]
+display_name = "Fireworks"
+adapter = "openai-chat"
+base_url = "https://api.fireworks.ai/inference/v1"
+api_key = "env:FIREWORKS_API_KEY"
+opencodex_id = "fireworks"
+
+[presets.moonshot]
+display_name = "Moonshot"
+adapter = "openai-chat"
+base_url = "https://api.moonshot.ai/v1"
+api_key = "env:MOONSHOT_API_KEY"
+opencodex_id = "moonshot"
+
+[presets.minimax]
+display_name = "MiniMax"
+adapter = "openai-chat"
+base_url = "https://api.minimax.io/v1"
+api_key = "env:MINIMAX_API_KEY"
+opencodex_id = "minimax"
+
+[presets.nvidia]
+display_name = "NVIDIA"
+adapter = "openai-chat"
+base_url = "https://integrate.api.nvidia.com/v1"
+api_key = "env:NVIDIA_API_KEY"
+opencodex_id = "nvidia"
+
+[presets.siliconflow]
+display_name = "SiliconFlow"
+adapter = "openai-chat"
+base_url = "https://api.siliconflow.cn/v1"
+api_key = "env:SILICONFLOW_API_KEY"
+opencodex_id = "siliconflow"
+
+[presets.zhipu-bigmodel]
+display_name = "Zhipu"
+adapter = "openai-chat"
+base_url = "https://open.bigmodel.cn/api/paas/v4"
+api_key = "env:ZHIPU_API_KEY"
+opencodex_id = "zhipu-bigmodel"
+
+[presets.volcengine]
+display_name = "Volcengine"
+adapter = "openai-chat"
+base_url = "https://ark.cn-beijing.volces.com/api/v3"
+api_key = "env:ARK_API_KEY"
+opencodex_id = "volcengine"
+
+[presets.deepinfra]
+display_name = "DeepInfra"
+adapter = "openai-chat"
+base_url = "https://api.deepinfra.com/v1/openai"
+api_key = "env:DEEPINFRA_API_KEY"
+opencodex_id = "deepinfra"
+
+[presets.novita]
+display_name = "Novita"
+adapter = "openai-chat"
+base_url = "https://api.novita.ai/openai/v1"
+api_key = "env:NOVITA_API_KEY"
+opencodex_id = "novita"
+
+[presets.sambanova]
+display_name = "SambaNova"
+adapter = "openai-chat"
+base_url = "https://api.sambanova.ai/v1"
+api_key = "env:SAMBANOVA_API_KEY"
+opencodex_id = "sambanova"
+
+[presets.stepfun]
+display_name = "StepFun"
+adapter = "openai-chat"
+base_url = "https://api.stepfun.com/v1"
+api_key = "env:STEPFUN_API_KEY"
+opencodex_id = "stepfun"
+
+[presets.ollama]
+display_name = "Ollama"
+adapter = "openai-chat"
+base_url = "http://localhost:11434/v1"
+auth = "none"
+private_network = true
+opencodex_id = "ollama"
+
+[presets.vllm]
+display_name = "vLLM"
+adapter = "openai-chat"
+base_url = "http://localhost:8000/v1"
+auth = "none"
+private_network = true
+opencodex_id = "vllm"
+
+[presets.lm-studio]
+display_name = "LM Studio"
+adapter = "openai-chat"
+base_url = "http://localhost:1234/v1"
+auth = "none"
+private_network = true
+opencodex_id = "lm-studio"
+
+[presets.litellm]
+display_name = "LiteLLM"
+adapter = "openai-chat"
+base_url = "http://localhost:4000/v1"
+auth = "none"
+private_network = true
+opencodex_id = "litellm"
