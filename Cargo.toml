@@ -30,7 +30,7 @@ members = [
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/BarryWangQwQ/OwO-AI-Gate"
+repository = "https://github.com/BarryWangQwQ/OwO-AI-Gateway"
 rust-version = "1.85"
 
 [workspace.dependencies]
