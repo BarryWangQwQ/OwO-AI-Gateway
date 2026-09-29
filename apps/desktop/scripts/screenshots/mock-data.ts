@@ -43,7 +43,7 @@ const hex = (n: number) => Array.from({ length: n }, () => Math.floor(rng() * 16
 // ---------------------------------------------------------------- status, presets
 
 export const status: Status = {
-  version: "0.1.0",
+  version: "0.2.0",
   configPath: `${HOME}/.owo/config.toml`,
   configExists: true,
   configError: null,

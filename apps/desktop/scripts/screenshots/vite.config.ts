@@ -1,5 +1,5 @@
 // The app with its Tauri backend replaced by ./mock-tauri.ts, for the README screenshots.
-// Served by ./capture.mjs; never part of `npm run build` (the app's own vite.config.ts builds that).
+// Served by ./capture.mjs; never part of `bun run build` (the app's own vite.config.ts builds that).
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";

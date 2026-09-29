@@ -6,6 +6,7 @@ mod config_edit;
 mod mcp;
 mod owo_cli;
 mod skills;
+mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 /// First argument that makes this executable run as the `owo` CLI instead of opening a window.
@@ -47,7 +48,8 @@ pub fn run() {
             eprintln!("could not create {}: {e:#}", paths.config.display());
         }
     }
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
+        .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::status,
@@ -103,7 +105,36 @@ pub fn run() {
             skills::skills_repo_reset,
             skills::skills_pick,
             skills::skills_open,
+            tray::set_tray_language,
+            tray::tray_refresh,
+            tray::tray_open_main,
+            tray::tray_close_popover,
+            tray::tray_quit,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running the OwO AI Gateway desktop app");
+        .setup(|app| {
+            tray::setup(app)?;
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            match event {
+                tauri::WindowEvent::Focused(false) if window.label() == "tray-popover" => {
+                    let _ = window.hide();
+                }
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    api.prevent_close();
+                    let _ = window.hide();
+                }
+                _ => {}
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building the OwO AI Gateway desktop app");
+    app.run(|handle, event| {
+        #[cfg(target_os = "macos")]
+        if matches!(event, tauri::RunEvent::Reopen { .. }) {
+            tray::show_main(handle, None);
+        }
+        #[cfg(not(target_os = "macos"))]
+        let _ = (handle, event);
+    });
 }

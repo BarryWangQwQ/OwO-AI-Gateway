@@ -20,6 +20,13 @@
     "sidebarDescription": "显示移动端侧边栏。",
     "toggleSidebar": "切换侧边栏"
   },
+  "tray": {
+    "productName": "OwO AI Gateway",
+    "lastSevenDays": "近 7 天",
+    "usageUnavailable": "暂时无法读取用量",
+    "configureApp": "前往设置",
+    "quit": "退出"
+  },
   "common": {
     "save": "保存",
     "cancel": "取消",
@@ -44,6 +51,7 @@
     "yes": "是",
     "no": "否",
     "none": "无",
+    "or": "或",
     "auto": "自动",
     "choose": "请选择…",
     "back": "上一步",
@@ -183,9 +191,9 @@
     "add": "添加模型",
     "empty": "还没有模型",
     "columns": {
-      "model": "模型",
+      "model": "网关模型",
       "provider": "提供商",
-      "upstreamId": "上游 ID",
+      "upstreamId": "上游模型 ID",
       "price": "价格（输入 / 输出）",
       "status": "状态"
     },
@@ -194,14 +202,16 @@
     "dialog": {
       "addTitle": "添加模型",
       "editTitle": "编辑 {{id}}",
-      "addDescription": "以自定义 ID 对外提供某个上游模型。",
-      "editDescription": "可以重命名模型、迁移到其他提供商，或设置价格。"
+      "addDescription": "创建客户端可调用的网关模型 ID，并映射到上游模型。上游 ID 留空时会使用相同 ID。",
+      "editDescription": "修改网关 ID、上游映射、显示名称或价格。"
     },
     "fields": {
-      "modelId": "模型 ID",
+      "modelId": "网关模型 ID",
+      "modelIdHint": "应用在请求中使用此 ID。",
       "provider": "提供商",
       "displayName": "显示名称",
-      "upstreamId": "上游 ID",
+      "upstreamId": "上游模型 ID",
+      "upstreamIdHint": "留空则使用网关模型 ID。",
       "sameAsId": "与 ID 相同"
     },
     "steps": {
@@ -237,7 +247,7 @@
       "none": "无需密钥"
     },
     "actions": "提供商操作",
-    "noModelsListed": "未列出模型",
+    "noModelsListed": "未列出上游模型",
     "dialog": {
       "addTitle": "添加提供商",
       "editTitle": "编辑 {{id}}",
@@ -272,9 +282,11 @@
       "inlineWarning": "密钥将以明文保存，OwO AI Gateway 每次启动时都会发出警告。",
       "envVar": "环境变量",
       "envHint": "config.toml 中只会记录变量名。",
-      "modelIds": "模型 ID",
-      "modelsHint": "每行一个 ID；留空则使用预设列表。",
-      "modelsHintSimple": "留空则使用预设列表。",
+      "modelIds": "上游模型",
+      "modelsHint": "每行一个 ID，按原 ID 提供；留空使用预设模型（若有）。",
+      "modelsHintSimple": "按原 ID 提供；留空使用预设模型（若有）。",
+      "allowDirectModels": "直通列表外模型",
+      "allowDirectModelsHint": "允许用 provider/model-id 调用列表外模型。",
       "enabled": "启用"
     },
     "renameNote": "<code>{{id}}</code> 下的模型会跟随新 ID；系统钥匙串中的密钥仍沿用原名称。",
@@ -620,4 +632,3 @@
     "reload": "重新加载"
   }
 }
-

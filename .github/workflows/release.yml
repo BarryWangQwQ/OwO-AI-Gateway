@@ -1,6 +1,6 @@
-# Desktop releases with the owo CLI inside: a single .exe for Windows, a .dmg with the .app
-# for macOS on Apple silicon, and a self-contained AppImage for Linux. Run it by hand from the
-# Actions tab to get the files as build artifacts, or push a `v*` tag to also publish a release.
+# Build Windows and Linux releases with the owo CLI inside. macOS is built locally.
+# A v* tag collects CI assets in a draft release; upload the local DMG, then publish
+# after all three platform packages have been checked.
 name: Release
 
 on:
@@ -19,9 +19,6 @@ jobs:
         include:
           - os: windows-latest
             name: windows-x64
-          # macOS 26 with Xcode 26: actool compiles the Icon Composer icon (see scripts/release.mjs).
-          - os: macos-26
-            name: macos-arm64
           - os: ubuntu-22.04
             name: linux-x64
     runs-on: ${{ matrix.os }}
@@ -40,19 +37,21 @@ jobs:
         with:
           key: ${{ matrix.name }}
 
-      - uses: actions/setup-node@v5
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/desktop/package-lock.json
+          bun-version: 1.3.14
 
       - name: Install frontend dependencies
         working-directory: apps/desktop
-        run: npm ci
+        # Same registry as apps/desktop/bunfig.toml: bun.lock stores the tarball URLs it resolved,
+        # so the lockfile only stays frozen if every machine installs from one registry.
+        env:
+          BUN_CONFIG_REGISTRY: https://registry.npmmirror.com
+        run: bun install --frozen-lockfile
 
       - name: Build
         working-directory: apps/desktop
-        run: npm run release
+        run: bun run release
 
       - uses: actions/upload-artifact@v7
         with:
@@ -69,7 +68,11 @@ jobs:
         with:
           path: dist
           merge-multiple: true
-      - name: Create the release
+      - name: Upload to the draft release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "OwO AI Gateway $GITHUB_REF_NAME" --generate-notes
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag --draft --title "OwO AI Gateway $GITHUB_REF_NAME" --generate-notes
+          fi
+          gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber

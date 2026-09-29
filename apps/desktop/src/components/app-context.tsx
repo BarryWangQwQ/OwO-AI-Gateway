@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { listen } from "@tauri-apps/api/event";
 import i18next from "i18next";
 
 import { ToastAction } from "@/components/ui/toast";
@@ -50,6 +51,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Polled while the window is visible; the last good status stays put when a poll fails.
   const { data: status, error: statusError, reload: refreshStatus } = useQuery(api.status, [], { refreshInterval: REFRESH.status });
 
+  useEffect(() => {
+    const syncLanguage = () => void api.setTrayLanguage(i18next.language).catch(() => {});
+    syncLanguage();
+    i18next.on("languageChanged", syncLanguage);
+    return () => i18next.off("languageChanged", syncLanguage);
+  }, []);
+
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    let disposed = false;
+    void listen<Page>("tray:navigate", ({ payload }) => setPage(payload))
+      .then((stop) => {
+        if (disposed) stop();
+        else unlisten = stop;
+      })
+      .catch(() => {});
+    return () => {
+      disposed = true;
+      unlisten?.();
+    };
+  }, []);
+
   // Once per distinct failure, not on every tick.
   useEffect(() => {
     if (statusError) toast({ variant: "destructive", title: i18next.t("toast.cannotReadState"), description: statusError });
@@ -61,12 +84,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const run = { start: api.gatewayStart, stop: api.gatewayStop, restart: api.gatewayRestart }[action];
         const label = { start: "toast.gatewayStarted", stop: "toast.gatewayStopped", restart: "toast.gatewayRestarted" }[action];
-        toastResult(await run(), i18next.t(label));
+        const result = await run();
+        if (result.ok) {
+          // The CLI output includes the URL, PID, and log path. Keep the toast
+          // compact; the gateway status and logs are available in the app.
+          toast({ title: i18next.t(label) });
+        } else {
+          toastResult(result, i18next.t(label));
+        }
       } catch (e) {
         toast({ variant: "destructive", title: i18next.t("toast.failed"), description: String(e) });
       } finally {
         setGatewayBusy(false);
         await refreshStatus();
+        void api.trayRefresh().catch(() => {});
       }
     },
     [refreshStatus],

@@ -1,9 +1,9 @@
 // Captures the README screenshots: serves the app against ./mock-tauri.ts (port 1430) and drives
 // it with the installed Microsoft Edge through playwright-core, then shrinks the PNGs (optimize.py).
 //
-//   npm run screenshots                 # zh-CN and en → docs/screenshots/{zh,en}/
-//   npm run screenshots -- en           # one language
-//   npm run screenshots -- zh-CN mcp    # one language, only shots whose name contains "mcp"
+//   bun run screenshots                 # zh-CN and en → docs/screenshots/{zh,en}/
+//   bun run screenshots -- en           # one language
+//   bun run screenshots -- zh-CN mcp    # one language, only shots whose name contains "mcp"
 //
 // Env: OWO_SHOTS_BROWSER=chrome to use Google Chrome instead of Edge; OWO_SHOTS_NO_OPTIMIZE=1 to keep raw PNGs.
 import { spawnSync } from "node:child_process";

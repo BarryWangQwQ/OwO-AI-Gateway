@@ -56,6 +56,13 @@
 
 <br>
 
+<h2 align="center">系统托盘</h2>
+
+- 关闭窗口后，桌面应用会留在托盘；左键点击图标可打开显示网关状态和近 7 天用量的控制面板。
+- 面板提供最近调用、应用连接控制，以及启停网关、打开仪表盘和退出应用等操作；Windows 也支持右键菜单，Linux 通过托盘菜单打开面板。
+
+<br>
+
 <h2 align="center">仪表盘</h2>
 
 <p align="center"><img src="docs/screenshots/zh/dashboard.png" width="100%" alt="仪表盘"></p>
@@ -439,22 +446,24 @@ cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
-桌面应用需要 Node.js，以及 [Tauri 2 的系统依赖](https://v2.tauri.app/start/prerequisites/)：
+桌面应用需要 [Bun](https://bun.sh)，以及 [Tauri 2 的系统依赖](https://v2.tauri.app/start/prerequisites/)：
 
 ```bash
 cd apps/desktop
-npm install
-npm run tauri dev
+bun install
+bun run tauri dev
 ```
 
 桌面应用直接读取配置和用量数据，也直接编辑提供商、模型和 `config.toml`。启停网关、接入应用，以及 MCP 和技能的变更，则通过调用 `owo` 命令行完成。命令行已经编译进桌面应用的可执行文件里：第一个参数为 `--owo-cli` 时，它的行为和 `owo` 完全一样（设置 `OWO_BIN` 可以改用单独编译的 `owo`）。
 
-打包当前平台的发布版本（内置命令行的桌面应用）：Windows 是单个 `.exe`，macOS 是装着 `.app` 的 `.dmg`，Linux 是自带依赖的 AppImage。[Release 工作流](.github/workflows/release.yml) 会在 GitHub Actions 上同时编译这三个平台。
+打包当前平台的发布版本（内置命令行的桌面应用）：Windows 是单个 `.exe`，macOS 是装着 `.app` 的 `.dmg`，Linux 是自带依赖的 AppImage。[Release 工作流](.github/workflows/release.yml) 会在 GitHub Actions 上编译 Windows 和 Linux。
 
 ```bash
 cd apps/desktop
-npm run release    # 输出 target/release/OwO-AI-Gateway_<版本>_<系统>-<架构>.{exe,dmg,AppImage}
+bun run release    # 输出 target/release/OwO-AI-Gateway_<版本>_<系统>-<架构>.{exe,dmg,AppImage}
 ```
+
+推送版本标签后，GitHub Actions 会编译 Windows 和 Linux 安装包并上传到 Release 草稿。macOS DMG 在本机编译，上传到同一草稿后，待三个平台的文件齐全再正式发布。
 
 <br>
 

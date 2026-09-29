@@ -14,7 +14,7 @@ const { version } = JSON.parse(readFileSync(join(tauriDir, "tauri.conf.json"), "
 const name = (os, ext) => join(release, `OwO-AI-Gateway_${version}_${os}-${process.arch}${ext}`);
 // Bundling is off in tauri.conf.json so a plain `tauri build` stays a bare executable.
 const bundle = (targets, extra = {}) =>
-  execFileSync("npx", ["tauri", "build", "--bundles", targets, "--config", JSON.stringify({ bundle: { active: true, ...extra } })], {
+  execFileSync("bunx", ["tauri", "build", "--bundles", targets, "--config", JSON.stringify({ bundle: { active: true, ...extra } })], {
     cwd: desktop,
     stdio: "inherit",
   });
@@ -36,14 +36,14 @@ function macIconResources() {
   return { resources: { "icons/macos-build/Assets.car": "Assets.car" } };
 }
 const only = (dir, ext) => {
-  const found = readdirSync(dir).filter((f) => f.endsWith(ext));
-  if (found.length !== 1) throw new Error(`expected one ${ext} in ${dir}, found ${found.length}`);
+  const found = readdirSync(dir).filter((f) => f.endsWith(ext) && f.includes(`_${version}_`));
+  if (found.length !== 1) throw new Error(`expected one ${ext} for ${version} in ${dir}, found ${found.length}`);
   return join(dir, found[0]);
 };
 
 let out;
 if (process.platform === "win32") {
-  execSync("npx tauri build --no-bundle", { cwd: desktop, stdio: "inherit" });
+  execSync("bunx tauri build --no-bundle", { cwd: desktop, stdio: "inherit" });
   out = name("windows", ".exe");
   copyFileSync(join(release, "owo-desktop.exe"), out);
 } else if (process.platform === "darwin") {

@@ -23,7 +23,7 @@ owo
 它会显示当前状态，并告诉你下一步：
 
 ```text
-OwO AI Gateway 0.1.0
+OwO AI Gateway 0.2.0
 config    C:\Users\you\.owo\config.toml
 gateway   not running (127.0.0.1:8787)
 models    4 available: claude-sonnet-5, claude-opus-5-5, claude-fable-5-1, claude-haiku-4-5

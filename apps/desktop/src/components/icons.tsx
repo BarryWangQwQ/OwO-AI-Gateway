@@ -88,6 +88,7 @@ export const PanelLeft = withStyle(K.PanelLeft);
 export const Plug = withStyle(K.Plug);
 export const Plus = withStyle(K.Plus);
 export const Power = withStyle(K.Power);
+export const PowerOff = withStyle(K.PowerOff);
 export const Radio = withStyle(K.Radio);
 export const RefreshCw = withStyle(K.RefreshCw);
 export const RotateCcw = withStyle(K.RotateCcw);

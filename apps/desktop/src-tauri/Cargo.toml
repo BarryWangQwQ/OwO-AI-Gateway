@@ -17,8 +17,9 @@ tauri-build = { version = "2", features = [] }
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
 tauri-plugin-dialog = "2"
+tauri-plugin-positioner = { version = "2", features = ["tray-icon"] }
 tokio.workspace = true
 toml_edit.workspace = true
 owo-config.workspace = true

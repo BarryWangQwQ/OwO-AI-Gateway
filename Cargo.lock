@@ -3991,7 +3991,7 @@ dependencies = [
 
 [[package]]
 name = "owo"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -4027,7 +4027,7 @@ dependencies = [
 
 [[package]]
 name = "owo-client-apps"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "dirs",
@@ -4041,7 +4041,7 @@ dependencies = [
 
 [[package]]
 name = "owo-client-claude-code"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "dirs",
@@ -4053,7 +4053,7 @@ dependencies = [
 
 [[package]]
 name = "owo-client-codex"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "dirs",
@@ -4127,7 +4127,7 @@ dependencies = [
 
 [[package]]
 name = "owo-config"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dirs",
  "owo-credentials",
@@ -4138,7 +4138,7 @@ dependencies = [
 
 [[package]]
 name = "owo-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "futures",
  "serde",
@@ -4148,7 +4148,7 @@ dependencies = [
 
 [[package]]
 name = "owo-credentials"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "keyring",
  "serde",
@@ -4157,7 +4157,7 @@ dependencies = [
 
 [[package]]
 name = "owo-desktop"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "owo",
@@ -4171,6 +4171,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
+ "tauri-plugin-positioner",
  "tempfile",
  "tokio",
  "toml_edit 0.22.27",
@@ -4179,7 +4180,7 @@ dependencies = [
 
 [[package]]
 name = "owo-gateway"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "axum",
@@ -4208,7 +4209,7 @@ dependencies = [
 
 [[package]]
 name = "owo-mcp"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "dirs",
@@ -4222,7 +4223,7 @@ dependencies = [
 
 [[package]]
 name = "owo-protocol-anthropic"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytes",
  "owo-core",
@@ -4234,7 +4235,7 @@ dependencies = [
 
 [[package]]
 name = "owo-protocol-openai-chat"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytes",
  "owo-core",
@@ -4245,7 +4246,7 @@ dependencies = [
 
 [[package]]
 name = "owo-protocol-openai-responses"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytes",
  "owo-core",
@@ -4256,7 +4257,7 @@ dependencies = [
 
 [[package]]
 name = "owo-provider-anthropic"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "owo-core",
@@ -4273,7 +4274,7 @@ dependencies = [
 
 [[package]]
 name = "owo-provider-http"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytes",
  "futures",
@@ -4291,7 +4292,7 @@ dependencies = [
 
 [[package]]
 name = "owo-provider-openai-compat"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "futures",
@@ -4308,7 +4309,7 @@ dependencies = [
 
 [[package]]
 name = "owo-registry"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "owo-config",
  "owo-core",
@@ -4320,7 +4321,7 @@ dependencies = [
 
 [[package]]
 name = "owo-routing"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "futures",
@@ -4334,7 +4335,7 @@ dependencies = [
 
 [[package]]
 name = "owo-skills"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "dirs",
@@ -4353,14 +4354,14 @@ dependencies = [
 
 [[package]]
 name = "owo-sse"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytes",
 ]
 
 [[package]]
 name = "owo-usage"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "owo-core",
  "owo-routing",
@@ -6697,6 +6698,21 @@ dependencies = [
  "thiserror 2.0.20",
  "toml 1.1.6+spec-1.1.0",
  "url",
+]
+
+[[package]]
+name = "tauri-plugin-positioner"
+version = "2.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf96307aaa63410af903ba182b88454864efd7bfcf6659c8f72225e840687240"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "tauri",
+ "tauri-plugin",
+ "thiserror 2.0.20",
 ]
 
 [[package]]

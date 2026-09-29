@@ -48,8 +48,11 @@ export function Heatmap({ days, maxCell, loading = false }: { days: Map<string, 
       const day = days.get(key);
       const future = date > today;
       if (i % 7 === 0 && date.getMonth() !== lastMonth && !future) {
-        // Label a month at the first week that starts inside it (skip a label crammed at the very end).
-        if (i / 7 < WEEKS - 2) months.push({ label: monthLabel(date), column: i / 7 });
+        // Skip partial months at the range edges: their labels collide with
+        // the next month when the visible range starts near a month boundary.
+        if (date.getDate() <= 7 && i / 7 < WEEKS - 2) {
+          months.push({ label: monthLabel(date), column: i / 7 });
+        }
         lastMonth = date.getMonth();
       }
       const title = day

@@ -218,6 +218,7 @@ type Draft = {
   baseUrl: string;
   auth: string;
   models: string;
+  allowDirectModels: boolean;
   enabled: boolean;
   keyMode: KeyMode;
   secret: string;
@@ -237,6 +238,7 @@ function draftFrom(p?: ProviderInfo): Draft {
     baseUrl: raw?.baseUrl ?? "",
     auth: raw?.auth ?? "",
     models: (raw?.models ?? []).join("\n"),
+    allowDirectModels: p?.allowDirectModels ?? true,
     enabled: p?.enabled ?? true,
     keyMode,
     secret: "",
@@ -304,6 +306,7 @@ export function ProvidersPage() {
         keepApiKey: d.keyMode === "keep",
         auth: d.auth || null,
         models: d.models.split(/[\n,]/).map((m) => m.trim()).filter(Boolean),
+        allowDirectModels: d.allowDirectModels,
         enabled: d.enabled,
       };
       await api.saveProvider(edit);
@@ -499,6 +502,18 @@ export function ProvidersPage() {
                           onChange={(ids) => set({ models: ids.join("\n") })}
                         />
                       </Field>
+                      <div className="col-span-2 flex items-start justify-between gap-4 rounded-xl border px-3 py-3">
+                        <div className="grid gap-1">
+                          <FieldLabel htmlFor="provider-direct-models">{t("providers.fields.allowDirectModels")}</FieldLabel>
+                          <FieldDescription>{t("providers.fields.allowDirectModelsHint")}</FieldDescription>
+                        </div>
+                        <Switch
+                          id="provider-direct-models"
+                          className="mt-0.5 shrink-0"
+                          checked={draft.allowDirectModels}
+                          onCheckedChange={(allowDirectModels) => set({ allowDirectModels })}
+                        />
+                      </div>
                     </div>
                     {renamed && (
                       <FieldDescription>

@@ -56,6 +56,13 @@
 
 <br>
 
+<h2 align="center">System tray</h2>
+
+- Closing the window keeps the desktop app in the tray. Click the tray icon for a compact control panel with gateway status and 7-day usage.
+- The panel includes recent calls and app connection controls, and can start or stop the gateway, open the dashboard, and quit the app. Windows also has a right-click menu; on Linux, use the tray menu to open the panel.
+
+<br>
+
 <h2 align="center">Dashboard</h2>
 
 <p align="center"><img src="docs/screenshots/en/dashboard.png" width="100%" alt="Dashboard"></p>
@@ -439,22 +446,24 @@ cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
-The desktop app needs Node.js and the [Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/):
+The desktop app needs [Bun](https://bun.sh) and the [Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/):
 
 ```bash
 cd apps/desktop
-npm install
-npm run tauri dev
+bun install
+bun run tauri dev
 ```
 
 The desktop app reads the config and usage data directly and edits providers, models, and `config.toml` itself. Starting and stopping the gateway, connecting apps, and MCP and skill changes go through the `owo` CLI, which is built into the desktop executable: run with `--owo-cli` as its first argument, the app behaves exactly like `owo` (set `OWO_BIN` to use a separately built `owo` instead).
 
-To build the release for the current platform (the desktop app with the CLI inside): a single `.exe` on Windows, a `.dmg` with the `.app` on macOS, and a self-contained AppImage on Linux. The [Release workflow](.github/workflows/release.yml) builds all three on GitHub Actions.
+To build the release for the current platform (the desktop app with the CLI inside): a single `.exe` on Windows, a `.dmg` with the `.app` on macOS, and a self-contained AppImage on Linux. The [Release workflow](.github/workflows/release.yml) builds Windows and Linux on GitHub Actions.
 
 ```bash
 cd apps/desktop
-npm run release    # → target/release/OwO-AI-Gateway_<version>_<os>-<arch>.{exe,dmg,AppImage}
+bun run release    # → target/release/OwO-AI-Gateway_<version>_<os>-<arch>.{exe,dmg,AppImage}
 ```
+
+Release tags build Windows and Linux packages in GitHub Actions and attach them to a draft release. Build the macOS DMG locally, upload it to the same draft, and publish once all three packages are ready.
 
 <br>
 

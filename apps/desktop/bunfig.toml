@@ -1,0 +1,8 @@
+# Bun is the only package manager here: bun.lock is text, so it stays reviewable in diffs.
+#
+# registry defaults to the npmmirror CDN because registry.npmjs.org is slow or unreachable from
+# mainland China. Override it without editing this file:
+#   BUN_CONFIG_REGISTRY=https://registry.npmjs.org bun install
+# CI uses the same registry so frozen installs match the URLs stored in bun.lock.
+[install]
+registry = "https://registry.npmmirror.com"

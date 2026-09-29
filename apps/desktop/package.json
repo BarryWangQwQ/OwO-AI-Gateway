@@ -1,17 +1,18 @@
 {
   "name": "owo-desktop",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "tsc -b && vite build",
     "tauri": "tauri",
-    "release": "node scripts/release.mjs",
-    "screenshots": "node scripts/screenshots/capture.mjs",
-    "logo-wall": "node scripts/logo-wall/render.mjs"
+    "release": "bun scripts/release.mjs",
+    "screenshots": "bun scripts/screenshots/capture.mjs",
+    "logo-wall": "bun scripts/logo-wall/render.mjs"
   },
   "dependencies": {
+    "@base-ui/react": "^1.8.0",
     "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-markdown": "^6.5.2",
     "@codemirror/lang-yaml": "^6.1.3",
@@ -23,7 +24,7 @@
     "@keyline-icons/react": "^1.2.0",
     "@lezer/highlight": "^1.2.4",
     "@lobehub/icons-static-svg": "^1.95.1",
-    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/api": "~2.11.1",
     "@uiw/react-codemirror": "^4.25.11",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
@@ -39,7 +40,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "@tauri-apps/cli": "^2.11.5",
+    "@tauri-apps/cli": "~2.11.5",
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

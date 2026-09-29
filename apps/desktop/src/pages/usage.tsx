@@ -176,8 +176,8 @@ export function UsagePage() {
                     <YAxis tickLine={false} axisLine={false} width="auto" tickMargin={4} tick={{ fontSize: 11 }} tickFormatter={(v: number) => compact(v)} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Bar dataKey="input" stackId="t" fill="var(--color-input)" radius={[0, 0, 4, 4]} />
-                    <Bar dataKey="output" stackId="t" fill="var(--color-output)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="input" stackId="t" fill="var(--color-input)" radius={[0, 0, 4, 4]} maxBarSize={88} />
+                    <Bar dataKey="output" stackId="t" fill="var(--color-output)" radius={[4, 4, 0, 0]} maxBarSize={88} />
                   </BarChart>
                 </ChartContainer>
               </CardContent>

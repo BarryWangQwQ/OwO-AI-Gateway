@@ -5,3 +5,4 @@
 node_modules/
 /apps/desktop/dist/
 /OWO_PROJECT_SPEC.md
+.DS_Store

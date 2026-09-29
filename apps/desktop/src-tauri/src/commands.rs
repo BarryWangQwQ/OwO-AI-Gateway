@@ -39,13 +39,13 @@ fn loaded() -> Result<(owo_config::Config, owo_registry::Registry)> {
 pub struct Status {
     version: &'static str,
     config_path: String,
-    config_exists: bool,
+    pub(crate) config_exists: bool,
     config_error: Option<String>,
     /// Where `reset_config` puts the copy of the old config.toml.
     config_backups_path: String,
     name: String,
-    gateway_running: bool,
-    gateway_address: String,
+    pub(crate) gateway_running: bool,
+    pub(crate) gateway_address: String,
     owo_binary: Option<String>,
 }
 
@@ -112,7 +112,7 @@ async fn usage_log() -> Result<Option<UsageLog>> {
 pub struct UsageReport {
     since: String,
     rows: Vec<Summary>,
-    total: Summary,
+    pub(crate) total: Summary,
 }
 
 #[tauri::command]
@@ -247,6 +247,7 @@ pub struct ProviderView {
     key_status: &'static str,
     key_message: Option<String>,
     models: Vec<String>,
+    allow_direct_models: bool,
     /// What config.toml itself sets for this provider (`None` for a preset nobody configured).
     raw: Option<ProviderRaw>,
 }
@@ -308,6 +309,7 @@ pub fn providers() -> Reply<Vec<ProviderView>> {
                     key_status,
                     key_message,
                     models: p.models.clone(),
+                    allow_direct_models: p.allow_direct_models,
                     raw: cfg.map(ProviderRaw::from_config),
                 }
             })
@@ -344,7 +346,7 @@ pub fn presets() -> Vec<PresetView> {
 
 #[derive(Serialize)]
 pub struct ActionResult {
-    ok: bool,
+    pub(crate) ok: bool,
     output: String,
 }
 
@@ -631,6 +633,7 @@ pub struct ProviderEdit {
     keep_api_key: bool,
     auth: Option<String>,
     models: Vec<String>,
+    allow_direct_models: bool,
     enabled: bool,
 }
 
@@ -659,6 +662,11 @@ pub fn save_provider(provider: ProviderEdit) -> Reply<()> {
                 table.insert("models", Item::Value(edit::string_array(&provider.models)));
             } else {
                 table.remove("models");
+            }
+            if provider.allow_direct_models {
+                table.remove("allow_direct_models");
+            } else {
+                table.insert("allow_direct_models", value(false));
             }
             if provider.enabled {
                 table.remove("enabled");

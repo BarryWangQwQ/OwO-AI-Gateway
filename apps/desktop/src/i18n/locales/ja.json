@@ -20,6 +20,13 @@
     "sidebarDescription": "モバイル用サイドバーを表示します。",
     "toggleSidebar": "サイドバーを切り替え"
   },
+  "tray": {
+    "productName": "OwO AI Gateway",
+    "lastSevenDays": "過去 7 日間",
+    "usageUnavailable": "使用量を取得できません",
+    "configureApp": "設定を開く",
+    "quit": "終了"
+  },
   "common": {
     "save": "保存",
     "cancel": "キャンセル",
@@ -44,6 +51,7 @@
     "yes": "はい",
     "no": "いいえ",
     "none": "なし",
+    "or": "または",
     "auto": "自動",
     "choose": "選択…",
     "back": "戻る",
@@ -183,9 +191,9 @@
     "add": "モデルを追加",
     "empty": "モデルはまだありません",
     "columns": {
-      "model": "モデル",
+      "model": "ゲートウェイモデル",
       "provider": "プロバイダー",
-      "upstreamId": "上流 ID",
+      "upstreamId": "上流モデル ID",
       "price": "価格（入力 / 出力）",
       "status": "ステータス"
     },
@@ -194,14 +202,16 @@
     "dialog": {
       "addTitle": "モデルを追加",
       "editTitle": "{{id}} を編集",
-      "addDescription": "上流モデルを任意の ID で公開します。",
-      "editDescription": "モデル名の変更、別プロバイダーへの移動、価格の設定ができます。"
+      "addDescription": "アプリが使うゲートウェイモデル ID を作成し、上流モデルに対応付けます。上流 ID を空にすると同じ ID を使います。",
+      "editDescription": "ゲートウェイ ID、上流モデル、表示名、価格を変更できます。"
     },
     "fields": {
-      "modelId": "モデル ID",
+      "modelId": "ゲートウェイモデル ID",
+      "modelIdHint": "アプリからのリクエストに使う ID です。",
       "provider": "プロバイダー",
       "displayName": "表示名",
-      "upstreamId": "上流 ID",
+      "upstreamId": "上流モデル ID",
+      "upstreamIdHint": "空欄ならゲートウェイモデル ID を使います。",
       "sameAsId": "ID と同じ"
     },
     "steps": {
@@ -237,7 +247,7 @@
       "none": "キー不要"
     },
     "actions": "プロバイダーの操作",
-    "noModelsListed": "モデルが登録されていません",
+    "noModelsListed": "上流モデルが登録されていません",
     "dialog": {
       "addTitle": "プロバイダーを追加",
       "editTitle": "{{id}} を編集",
@@ -272,9 +282,11 @@
       "inlineWarning": "キーは平文で保存されます。OwO AI Gateway は起動ごとに警告を表示します。",
       "envVar": "環境変数",
       "envHint": "config.toml には変数名のみが記録されます。",
-      "modelIds": "モデル ID",
-      "modelsHint": "1 行に 1 つの ID。空欄ならプリセットの一覧を使います。",
-      "modelsHintSimple": "空欄ならプリセットの一覧を使います。",
+      "modelIds": "上流モデル",
+      "modelsHint": "ID を 1 行に 1 つ入力。同じ ID で公開します。空欄ならプリセットを使います。",
+      "modelsHintSimple": "登録した ID で公開します。空欄ならプリセットを使います（利用可能な場合）。",
+      "allowDirectModels": "一覧外モデルを直接呼び出す",
+      "allowDirectModelsHint": "provider/model-id 形式で一覧外のモデルを呼び出せます。",
       "enabled": "有効"
     },
     "renameNote": "<code>{{id}}</code> のモデルは新しい ID に追従します。OS のキーチェーンに保存されたキーは元の名前のまま残ります。",
@@ -620,4 +632,3 @@
     "reload": "再読み込み"
   }
 }
-

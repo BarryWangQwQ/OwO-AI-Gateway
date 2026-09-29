@@ -1277,13 +1277,19 @@ export function SkillsPage() {
             </EmptyMedia>
             <EmptyTitle>{t("skills.empty")}</EmptyTitle>
           </EmptyHeader>
-          <EmptyContent className="flex-row justify-center">
+          <EmptyContent className="flex-row flex-wrap justify-center gap-x-3 gap-y-2">
             <Button onClick={() => setMode("discover")}>
               <Compass /> {t("skills.discover")}
             </Button>
             <Button variant="outline" onClick={() => setMode("install")}>
               <Plus /> {t("skills.install")}
             </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">{t("common.or")}</span>
+              <Button variant="outline" onClick={() => setEditing({ create: true })}>
+                <SquarePen /> {t("skills.write")}
+              </Button>
+            </div>
           </EmptyContent>
         </Empty>
       )}

@@ -94,6 +94,7 @@ export type ProviderInfo = {
   keyStatus: "ok" | "missing" | "none";
   keyMessage: string | null;
   models: string[];
+  allowDirectModels: boolean;
   raw: ProviderRaw | null;
 };
 
@@ -135,6 +136,7 @@ export type ProviderEdit = {
   keepApiKey: boolean;
   auth: string | null;
   models: string[];
+  allowDirectModels: boolean;
   enabled: boolean;
 };
 
@@ -166,6 +168,11 @@ export const api = {
   gatewayStart: () => invoke<ActionResult>("gateway_start"),
   gatewayStop: () => invoke<ActionResult>("gateway_stop"),
   gatewayRestart: () => invoke<ActionResult>("gateway_restart"),
+  trayRefresh: () => invoke<void>("tray_refresh"),
+  setTrayLanguage: (language: string) => invoke<void>("set_tray_language", { language }),
+  trayOpenMain: (page?: string) => invoke<void>("tray_open_main", { page: page ?? null }),
+  trayClosePopover: () => invoke<void>("tray_close_popover"),
+  trayQuit: () => invoke<void>("tray_quit"),
   appConnect: (app: string, model: string | null, force = false) => invoke<ActionResult>("app_connect", { app, model, force }),
   appDisconnect: (app: string, force = false) => invoke<ActionResult>("app_disconnect", { app, force }),
   /** `owo disconnect` for every connected app; one outcome per app. */

@@ -1,15 +1,16 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "OwO AI Gateway",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "identifier": "dev.owo.gateway",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "OwO AI Gateway",
@@ -20,6 +21,26 @@
         "resizable": true,
         "theme": "Dark",
         "backgroundColor": "#171717"
+      },
+      {
+        "label": "tray-popover",
+        "title": "OwO AI Gateway",
+        "url": "index.html?tray=1",
+        "width": 416,
+        "height": 420,
+        "minWidth": 416,
+        "minHeight": 420,
+        "maxWidth": 416,
+        "maxHeight": 420,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "backgroundColor": "#00000000",
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "focus": true
       }
     ],
     "security": {

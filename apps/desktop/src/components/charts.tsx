@@ -31,32 +31,51 @@ const BIG_STEPS = [
   ["text-base", 16],
 ] as const;
 const CAPTION_PX = 12; // text-xs
+const LABEL_WIDTH_RATIO = 0.58;
+const GAUGE_LABEL_WIDTH_RATIO = 0.64;
+const GAUGE_REFERENCE_INNER_RADIUS = 70.4; // 80% of the default 11rem gauge radius
 
 /**
  * Two centered lines inside a ring's hole: `value` (semibold, `size` = `3xl` for the gauge, `xl` for donuts) over
  * `caption` (`text-xs`, muted). The value stays at its base size for the common short strings (`80%`, `294.2K`) and steps
- * down only for genuinely long ones: one step past 6 characters (`999.99M`), two past 8 (`12345.67B`).
+ * down for genuinely long values or when the ring gets narrow, leaving a clear margin between both lines and the ring.
  */
-function RingLabel({ viewBox, value, caption, size }: { viewBox: LabelProps["viewBox"]; value: string; caption: string; size: "3xl" | "2xl" | "xl" }) {
+function RingLabel({ viewBox, value, caption, size, scaleWithGauge = false }: { viewBox: LabelProps["viewBox"]; value: string; caption: string; size: "3xl" | "2xl" | "xl"; scaleWithGauge?: boolean }) {
   const polar = viewBox && "cx" in viewBox ? viewBox : undefined;
   const base = BIG_STEPS.findIndex(([cls]) => cls === `text-${size}`);
   const [, stepPx] = BIG_STEPS[Math.min(BIG_STEPS.length - 1, base + (value.length > 8 ? 2 : value.length > 6 ? 1 : 0))];
-  // Fonts differ in width across platforms, so the value is measured and shrunk until it sits within 70% of the hole.
+  // Leave a generous inset from the ring. This matters most for `100%`, which is wider than the usual values.
   const valueRef = useRef<SVGTSpanElement>(null);
+  const captionRef = useRef<SVGTSpanElement>(null);
   const [fitPx, setFitPx] = useState<number | null>(null);
-  const maxWidth = (polar?.innerRadius ?? 0) * 2 * 0.7;
+  const [captionFitPx, setCaptionFitPx] = useState<number | null>(null);
+  const innerRadius = polar?.innerRadius ?? 0;
+  const maxWidth = innerRadius * 2 * (scaleWithGauge ? GAUGE_LABEL_WIDTH_RATIO : LABEL_WIDTH_RATIO);
+  const gaugeScale = scaleWithGauge ? 0.75 + 0.25 * Math.min(1, innerRadius / GAUGE_REFERENCE_INNER_RADIUS) : 1;
   useLayoutEffect(() => {
-    const el = valueRef.current;
-    if (!el || maxWidth <= 0) return;
-    el.style.fontSize = `${stepPx}px`;
-    const width = el.getComputedTextLength();
-    setFitPx(width > maxWidth ? Math.floor((stepPx * maxWidth) / width) : null);
-  }, [value, stepPx, maxWidth]);
+    if (maxWidth <= 0) return;
+
+    const valueEl = valueRef.current;
+    if (valueEl) {
+      valueEl.style.fontSize = `${stepPx}px`;
+      const width = valueEl.getComputedTextLength();
+      const fit = Math.min(stepPx * gaugeScale, width > 0 ? (stepPx * maxWidth) / width : stepPx);
+      setFitPx(fit < stepPx ? fit : null);
+    }
+
+    const captionEl = captionRef.current;
+    if (captionEl && caption) {
+      captionEl.style.fontSize = `${CAPTION_PX}px`;
+      const width = captionEl.getComputedTextLength();
+      const fit = Math.min(CAPTION_PX * gaugeScale, width > 0 ? (CAPTION_PX * maxWidth) / width : CAPTION_PX);
+      setCaptionFitPx(fit < CAPTION_PX ? fit : null);
+    }
+  }, [value, caption, stepPx, maxWidth, gaugeScale]);
   if (!polar) return null;
   const cx = polar.cx ?? 0;
   const cy = polar.cy ?? 0;
   const bigPx = fitPx ?? stepPx;
-  const gap = caption ? 4 : 0;
+  const gap = caption ? 4 * gaugeScale : 0;
   // Explicit alphabetic baselines instead of `dominant-baseline`: WebKit (macOS) doesn't pass it on to
   // `<tspan>`s the way Chromium does. Digits and caps are ~0.7em tall, so a baseline 0.35em below a line's
   // middle centres it.
@@ -68,7 +87,7 @@ function RingLabel({ viewBox, value, caption, size }: { viewBox: LabelProps["vie
         {value}
       </tspan>
       {caption && (
-        <tspan x={cx} y={captionMid + CAPTION_PX * 0.35} className="fill-muted-foreground text-xs">
+        <tspan ref={captionRef} x={cx} y={captionMid + CAPTION_PX * 0.35} style={captionFitPx ? { fontSize: captionFitPx } : undefined} className="fill-muted-foreground text-xs">
           {caption}
         </tspan>
       )}
@@ -121,7 +140,7 @@ export function Gauge({ counts, className }: { counts?: Record<Outcome, number>;
       <PieChart>
         {/* Ring 20% of the radius thick (100% − 80%), i.e. 10% of its diameter; the 80% hole fits `100%` + `12.3K calls` at full size. */}
         <Pie data={rows} dataKey="value" nameKey="name" startAngle={90} endAngle={-270} innerRadius="80%" outerRadius="100%" stroke="none" paddingAngle={split ? 2 : 0} cornerRadius={split ? 99 : 0}>
-          <Label content={({ viewBox }) => <RingLabel viewBox={viewBox} value={counts && total > 0 ? `${Math.round((counts.ok / total) * 100)}%` : "—"} caption={counts ? t("common.calls", { count: total }) : ""} size="3xl" />} />
+          <Label content={({ viewBox }) => <RingLabel viewBox={viewBox} value={counts && total > 0 ? `${Math.round((counts.ok / total) * 100)}%` : "—"} caption={counts ? t("common.calls", { count: total }) : ""} size="3xl" scaleWithGauge />} />
         </Pie>
       </PieChart>
     </ChartContainer>
@@ -143,7 +162,7 @@ export function Donut({ data, unit, className }: { data: { name: string; value: 
         {shares.length > 0 && <ChartTooltip content={<ChartTooltipContent hideLabel nameKey="name" />} />}
         {/*
          * Ring 16% of the box radius thick (92% − 76%); the 76% hole is ~102px on a 134px box, so a six-character
-         * `999.9K` at text-xl (≈0.6em/char → 72px) takes ≤ 70% of it.
+         * `999.9K` at text-xl (≈0.6em/char → 72px) fits inside the label's 58% width limit.
          */}
         <Pie
           data={rows}

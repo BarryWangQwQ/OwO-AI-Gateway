@@ -1,197 +1,84 @@
 "use client"
 
-// Inspired by react-hot-toast library
-import * as React from "react"
+// Compatibility layer between the app's existing call sites and Base UI's toast
+// manager (see components/ui/toast.tsx).
+//
+// The app was written against the Radix toast API: `toast({ variant, title,
+// description, action })`, where `action` is a `<ToastAction>` element. Base UI
+// takes `type` plus a plain `actionProps` object, and owns the toast list
+// itself instead of going through a reducer. Translating here keeps every call
+// site reading the way it already does while the rendering, stacking and
+// dismissal are all Base UI's.
+//
+// New code should import `toast` from "@/components/ui/toast" and call
+// `toast.add({ type: "success", ... })` directly; this file exists for the
+// existing call sites and can be retired once they are migrated.
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+import type * as React from "react"
 
-const TOAST_LIMIT = 3
-/** How long a dismissed toast stays in state so its exit animation (200ms) can finish. */
-const TOAST_REMOVE_DELAY = 1000
+import { toast as manager, useToastManager } from "@/components/ui/toast"
 
-type ToasterToast = ToastProps & {
-  id: string
+/**
+ * A `<ToastAction>` element; its `children` and `onClick` become `actionProps`.
+ * `altText` is accepted for call-site compatibility but ignored — Base UI's
+ * action is a plain button whose label already comes from `children`.
+ */
+type ToastActionElement = React.ReactElement<{
+  children?: React.ReactNode
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
+  altText?: string
+}>
+
+type ToastOptions = {
   title?: React.ReactNode
   description?: React.ReactNode
+  /** `destructive` maps to Base UI's `error` type, `default` to `success`. */
+  variant?: "default" | "destructive" | null
   action?: ToastActionElement
-  /** Leading icon; defaults to a check mark (default) or an error mark (destructive). */
-  icon?: React.ReactNode
 }
 
-const actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
-} as const
-
-let count = 0
-
-function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
-  return count.toString()
-}
-
-type ActionType = typeof actionTypes
-
-type Action =
-  | {
-      type: ActionType["ADD_TOAST"]
-      toast: ToasterToast
-    }
-  | {
-      type: ActionType["UPDATE_TOAST"]
-      toast: Partial<ToasterToast>
-    }
-  | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
-  | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
-
-interface State {
-  toasts: ToasterToast[]
-}
-
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
-
-const addToRemoveQueue = (toastId: string) => {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
-
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
-    dispatch({
-      type: "REMOVE_TOAST",
-      toastId: toastId,
-    })
-  }, TOAST_REMOVE_DELAY)
-
-  toastTimeouts.set(toastId, timeout)
-}
-
-export const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "ADD_TOAST":
-      return {
-        ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
-      }
-
-    case "UPDATE_TOAST":
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
-      }
-
-    case "DISMISS_TOAST": {
-      const { toastId } = action
-
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
-      if (toastId) {
-        addToRemoveQueue(toastId)
-      } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
-        })
-      }
-
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? {
-                ...t,
-                open: false,
-              }
-            : t
-        ),
-      }
-    }
-    case "REMOVE_TOAST":
-      if (action.toastId === undefined) {
-        return {
-          ...state,
-          toasts: [],
+/**
+ * Maps a legacy toast onto Base UI's options.
+ *
+ * A non-destructive toast used to render a check mark, so it maps to `success`;
+ * `destructive` maps to `error`. Callers wanting `info`, `warning` or `loading`
+ * should use `toast.add` from "@/components/ui/toast" directly.
+ */
+function toOptions({ variant, action, ...rest }: ToastOptions) {
+  return {
+    ...rest,
+    type: variant === "destructive" ? "error" : "success",
+    ...(action
+      ? {
+          actionProps: {
+            children: action.props.children,
+            onClick: action.props.onClick,
+          },
         }
-      }
-      return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      }
+      : {}),
   }
 }
 
-const listeners: Array<(state: State) => void> = []
-
-let memoryState: State = { toasts: [] }
-
-function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
-}
-
-type Toast = Omit<ToasterToast, "id">
-
-function toast({ ...props }: Toast) {
-  const id = genId()
-
-  const update = (props: ToasterToast) =>
-    dispatch({
-      type: "UPDATE_TOAST",
-      toast: { ...props, id },
-    })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
-
-  dispatch({
-    type: "ADD_TOAST",
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss()
-      },
-    },
-  })
+/** Legacy-compatible `toast()`; returns the same handle the old API returned. */
+function toast({ ...props }: ToastOptions) {
+  const id = manager.add(toOptions(props))
 
   return {
-    id: id,
-    dismiss,
-    update,
+    id,
+    dismiss: () => manager.close(id),
+    update: (next: ToastOptions) => manager.update(id, toOptions(next)),
   }
 }
 
+/** Legacy-compatible `useToast()`. */
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
-
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
-    }
-  }, [state])
-
+  const { toasts } = useToastManager()
   return {
-    ...state,
+    toasts,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+    dismiss: (toastId?: string) => manager.close(toastId),
   }
 }
 
 export { useToast, toast }
+export type { ToastActionElement, ToastOptions }

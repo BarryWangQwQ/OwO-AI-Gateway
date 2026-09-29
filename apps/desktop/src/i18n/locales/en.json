@@ -12,13 +12,20 @@
     "mcp": "MCP",
     "skills": "Skills",
     "settings": "Settings",
-    "startGateway": "Start gateway",
-    "stopGateway": "Stop gateway",
+    "startGateway": "Start Gateway",
+    "stopGateway": "Stop Gateway",
     "running": "Running",
     "stopped": "Stopped",
     "sidebar": "Sidebar",
     "sidebarDescription": "Displays the mobile sidebar.",
     "toggleSidebar": "Toggle sidebar"
+  },
+  "tray": {
+    "productName": "OwO AI Gateway",
+    "lastSevenDays": "Last 7 days",
+    "usageUnavailable": "Usage is unavailable",
+    "configureApp": "Set up",
+    "quit": "Quit"
   },
   "common": {
     "save": "Save",
@@ -44,6 +51,7 @@
     "yes": "Yes",
     "no": "No",
     "none": "None",
+    "or": "or",
     "auto": "Auto",
     "choose": "Choose…",
     "back": "Back",
@@ -186,9 +194,9 @@
     "add": "Add model",
     "empty": "No models yet",
     "columns": {
-      "model": "Model",
+      "model": "Gateway model",
       "provider": "Provider",
-      "upstreamId": "Upstream id",
+      "upstreamId": "Upstream model ID",
       "price": "Price in / out",
       "status": "Status"
     },
@@ -197,14 +205,16 @@
     "dialog": {
       "addTitle": "Add model",
       "editTitle": "Edit {{id}}",
-      "addDescription": "Expose an upstream model under an id of your choosing.",
-      "editDescription": "Rename the model, move it to another provider, or set its prices."
+      "addDescription": "Create a gateway model ID and map it to an upstream model. Leave the upstream ID empty to use the same ID.",
+      "editDescription": "Change the gateway ID, upstream mapping, display name, or price."
     },
     "fields": {
-      "modelId": "Model id",
+      "modelId": "Gateway model ID",
+      "modelIdHint": "This is the ID apps use in requests.",
       "provider": "Provider",
       "displayName": "Display name",
-      "upstreamId": "Upstream id",
+      "upstreamId": "Upstream model ID",
+      "upstreamIdHint": "Blank uses the gateway model ID.",
       "sameAsId": "same as the id"
     },
     "steps": {
@@ -240,7 +250,7 @@
       "none": "No key needed"
     },
     "actions": "Provider actions",
-    "noModelsListed": "No models listed",
+    "noModelsListed": "No upstream models listed",
     "dialog": {
       "addTitle": "Add provider",
       "editTitle": "Edit {{id}}",
@@ -275,9 +285,11 @@
       "inlineWarning": "The key is stored in plain text; OwO AI Gateway warns about it on every start.",
       "envVar": "Environment variable",
       "envHint": "Only the variable's name goes into config.toml.",
-      "modelIds": "Model ids",
-      "modelsHint": "One id per line; empty uses the preset's list.",
-      "modelsHintSimple": "Leave empty to use the preset's list.",
+      "modelIds": "Upstream models",
+      "modelsHint": "One ID per line. IDs are published as-is; empty uses preset models, if any.",
+      "modelsHintSimple": "IDs are published as-is; empty uses preset models, if any.",
+      "allowDirectModels": "Direct model IDs",
+      "allowDirectModelsHint": "Accept provider/model-id for IDs outside this list.",
       "enabled": "Enabled"
     },
     "renameNote": "Models of <code>{{id}}</code> follow the new id; a key in the OS keyring stays under its current name.",
@@ -628,4 +640,3 @@
     "reload": "Reload"
   }
 }
-

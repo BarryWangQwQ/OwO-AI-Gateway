@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { TrayPopover } from "@/components/tray-popover";
 import { AppsPage } from "@/pages/apps";
 import { DashboardPage } from "@/pages/dashboard";
 import { HistoryPage } from "@/pages/history";
@@ -42,10 +43,7 @@ function Shell() {
         <ScrollArea type="always" className="min-h-0 flex-1">
           {/* `--page-height` is what a page gets without scrolling: the viewport minus the inset margins (m-2 × 2) and this padding (py-5 × 2). */}
           <div className="px-6 py-5 lg:px-8 [--page-height:calc(100svh-3.5rem)]">
-            <div
-              key={page}
-              className="animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both duration-250 ease-out motion-reduce:animate-none"
-            >
+            <div key={page}>
               <ErrorBoundary title={t("errors.pageFailed")}>
                 <View />
               </ErrorBoundary>
@@ -58,6 +56,14 @@ function Shell() {
 }
 
 export default function App() {
+  if (new URLSearchParams(window.location.search).has("tray")) {
+    return (
+      <ThemeProvider>
+        <TrayPopover />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider>
       <TooltipProvider>

@@ -327,6 +327,7 @@ export function ModelsPage() {
                             onChange={(e) => set({ id: e.target.value })}
                           />
                         </InputGroup>
+                        <FieldDescription>{t("models.fields.modelIdHint")}</FieldDescription>
                       </Field>
                       <Field>
                         <FieldLabel htmlFor="model-name">{t("models.fields.displayName")}</FieldLabel>
@@ -340,6 +341,7 @@ export function ModelsPage() {
                           </InputGroupAddon>
                           <InputGroupInput
                             id="model-upstream"
+                            list="model-upstream-options"
                             value={draft.upstreamModel}
                             placeholder={draft.id.trim() || t("models.fields.sameAsId")}
                             autoComplete="off"
@@ -347,6 +349,10 @@ export function ModelsPage() {
                             onChange={(e) => set({ upstreamModel: e.target.value })}
                           />
                         </InputGroup>
+                        <datalist id="model-upstream-options">
+                          {chosen?.models.map((id) => <option key={id} value={id} />)}
+                        </datalist>
+                        <FieldDescription>{t("models.fields.upstreamIdHint")}</FieldDescription>
                       </Field>
                     </div>
                     {renamed && (
